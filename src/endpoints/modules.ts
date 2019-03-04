@@ -5,5 +5,8 @@ export namespace EndpointModules {
     WrapAync = 'Endpoint/Utils/WrapAsync'
   }
 
-  // TODO: endpoint modules.
+  export enum Device {
+    Register = 'Endpoint/Device/Register',
+    Unregister = 'Endpoint/Device/Unregister'
+  }
 }

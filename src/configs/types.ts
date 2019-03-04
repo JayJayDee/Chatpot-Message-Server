@@ -3,9 +3,13 @@ export namespace ConfigTypes {
     http: HttpConfig;
     credential: CredentialConfig;
     extapi: ExternalApiConfig;
+    fcm: FcmConfig;
   };
   export type HttpConfig = {
     port: number;
+  };
+  export type FcmConfig = {
+    privKeyPath: string;
   };
   export type CredentialConfig = {
     authEnabled: boolean;
