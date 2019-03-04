@@ -6,7 +6,6 @@ import { EndpointTypes, EndpointModules } from './endpoints';
     includes: [`${__dirname}/**/*.ts`, `${__dirname}/**/*.js`]
   });
 
-  const runner  = await resolve
-    <EndpointTypes.EndpointRunner>(EndpointModules.EndpointRunner);
+  const runner = resolve<EndpointTypes.EndpointRunner>(EndpointModules.EndpointRunner);
   runner();
 })();
