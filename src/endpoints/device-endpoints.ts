@@ -6,7 +6,7 @@ import { InvalidParamError } from '../errors';
 injectable(EndpointModules.Device.Register,
   [ EndpointModules.Utils.WrapAync ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> => ({
-    uri: '/device/register',
+    uri: '/internal/device/register',
     method: EndpointTypes.EndpointMethod.POST,
     handler: [
       wrapAsync(async (req, res, next) => {
@@ -28,7 +28,7 @@ injectable(EndpointModules.Device.Register,
   injectable(EndpointModules.Device.Unregister,
     [ EndpointModules.Utils.WrapAync ],
     async (wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> => ({
-      uri: '/device/unregister',
+      uri: '/internal/device/unregister',
       method: EndpointTypes.EndpointMethod.POST,
       handler: [
         wrapAsync(async (req, res, next) => {

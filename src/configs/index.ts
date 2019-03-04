@@ -59,6 +59,10 @@ injectable(ConfigModules.ExternalApiConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.extapi);
 
+injectable(ConfigModules.FcmConfig,
+  [ConfigModules.RootConfig],
+  async (root: ConfigTypes.RootConfig) => root.fcm);
+
 injectable(ConfigModules.Env,
   [ConfigModules.ConfigSource],
   async (src: ConfigTypes.ConfigSource) => {
