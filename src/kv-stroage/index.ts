@@ -32,5 +32,17 @@ injectable(KeyValueStorageModules.Set,
   [ KeyValueStorageModules.Operations ],
   async (ops: KeyValueStorageTypes.StorageOperations) => ops.set);
 
+injectable(KeyValueStorageModules.Push,
+  [ KeyValueStorageModules.Operations ],
+  async (ops: KeyValueStorageTypes.StorageOperations) => ops.push);
+
+injectable(KeyValueStorageModules.Range,
+  [ KeyValueStorageModules.Operations ],
+  async (ops: KeyValueStorageTypes.StorageOperations) => ops.range);
+
+injectable(KeyValueStorageModules.Del,
+  [ KeyValueStorageModules.Operations ],
+  async (ops: KeyValueStorageTypes.StorageOperations) => ops.del);
+
 export { KeyValueStorageTypes } from './types';
 export { KeyValueStorageModules } from './modules';

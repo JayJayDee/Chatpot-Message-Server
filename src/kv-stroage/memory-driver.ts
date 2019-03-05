@@ -1,4 +1,6 @@
+import { isArray } from 'util';
 import { KeyValueStorageTypes } from './types';
+import { KvStorageKeyNotfoundError, KvStorageInvalidOpsError } from './errors';
 import { LoggerTypes } from '../loggers';
 
 type Storage = {[key: string]: any};
@@ -51,18 +53,26 @@ const memorySet =
 
 const memoryPush =
   (storage: Storage): KeyValueStorageTypes.Push =>
-    async (key, value) => {
-
+    async (key, value, maxSize) => {
+      const arr: any[] = storage[key];
+      if (!arr) storage[key] = [];
+      if (arr.length >= maxSize) arr.pop();
+      arr.unshift(value);
     };
 
 const memoryRange =
   (storage: Storage): KeyValueStorageTypes.Range =>
     async (key, start, end) => {
-      return [];
+      const arr: any[] = storage[key];
+      if (!arr) throw new KvStorageKeyNotfoundError(`key:${key} not found`);
+      if (!isArray(arr)) throw new KvStorageInvalidOpsError(`key:${key} was not an array`);
+      return arr.slice(start, end + 1);
     };
 
 const memoryDel =
   (storage: Storage): KeyValueStorageTypes.Del =>
     async (key) => {
-
+      if (storage[key]) {
+        delete storage[key];
+      }
     };

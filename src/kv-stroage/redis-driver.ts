@@ -59,7 +59,7 @@ const redisSet = (client: RedisClient): KeyValueStorageTypes.Set =>
     });
 
 const redisPushQueue = (client: RedisClient): KeyValueStorageTypes.Push =>
-  (key: string, value: any) =>
+  (key: string, value: any, maxSize: number) =>
     new Promise((resolve, reject) => {
 
     });
