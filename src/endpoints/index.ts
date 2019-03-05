@@ -7,6 +7,13 @@ export { EndpointModules } from './modules';
 // register endpoints to container.
 injectable(EndpointModules.Endpoints,
   [ EndpointModules.Device.Register,
-    EndpointModules.Device.Unregister ],
-  async (regDevice, unregDevice) =>
-    ([ regDevice, unregDevice ]));
+    EndpointModules.Device.Unregister,
+    EndpointModules.Message.Publish,
+    EndpointModules.Message.Messages ],
+  async (regDevice, unregDevice, publish, msgs) =>
+    ([
+      regDevice,
+      unregDevice,
+      publish,
+      msgs
+    ]));

@@ -9,4 +9,9 @@ export namespace EndpointModules {
     Register = 'Endpoint/Device/Register',
     Unregister = 'Endpoint/Device/Unregister'
   }
+
+  export enum Message {
+    Publish = 'Endpoint/Message/Publish',
+    Messages = 'Endpoint/Message/Messages'
+  }
 }
