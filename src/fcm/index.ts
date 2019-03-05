@@ -3,11 +3,14 @@ import initDefaultFcmMgr from './default-fcm-manager';
 import { ConfigModules, ConfigTypes } from '../configs';
 import { FcmModules } from './modules';
 import { FcmTypes } from './types';
+import { LoggerModules, LoggerTypes } from '../loggers';
 
 injectable(FcmModules.FcmMgr,
-  [ ConfigModules.FcmConfig ],
-  async (cfg: ConfigTypes.FcmConfig): Promise<FcmTypes.FcmMgr> =>
-    initDefaultFcmMgr(cfg));
+  [ ConfigModules.FcmConfig,
+    LoggerModules.Logger ],
+  async (cfg: ConfigTypes.FcmConfig,
+    log: LoggerTypes.Logger): Promise<FcmTypes.FcmMgr> =>
+      initDefaultFcmMgr(cfg, log));
 
 injectable(FcmModules.Register,
   [ FcmModules.FcmMgr ],

@@ -2,14 +2,16 @@ import * as admin from 'firebase-admin';
 import { readFile } from 'fs';
 import { ConfigTypes } from '../configs';
 import { FcmTypes } from './types';
+import { LoggerTypes } from '../loggers';
 
 const initDefaultFcmMgr =
-  async (cfg: ConfigTypes.FcmConfig): Promise<FcmTypes.FcmMgr> => {
+  async (cfg: ConfigTypes.FcmConfig, log: LoggerTypes.Logger): Promise<FcmTypes.FcmMgr> => {
     await tryOpenPrivKeyFile(cfg.privKeyPath);
     admin.initializeApp({
       credential: admin.credential.cert(require(cfg.privKeyPath))
     });
     const fcm = admin.messaging();
+    log.debug('[fcm] fcm-admin initialized');
     return {
       register: registerFunction(fcm),
       unregister: unregisterFunction(fcm)
@@ -19,12 +21,12 @@ export default initDefaultFcmMgr;
 
 const registerFunction = (fcm: admin.messaging.Messaging): FcmTypes.Register =>
   async (topicName, deviceTokens) => {
-    // TODO: implementations.
+    await fcm.subscribeToTopic(deviceTokens, topicName);
   };
 
 const unregisterFunction = (fcm: admin.messaging.Messaging): FcmTypes.Unregister =>
   async (topicName, deviceTokens) => {
-    // TODO: implementations.
+    await fcm.unsubscribeFromTopic(deviceTokens, topicName);
   };
 
 const tryOpenPrivKeyFile = (path: string): Promise<void> =>
