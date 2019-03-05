@@ -10,3 +10,11 @@ injectable(MessageStoreModules.StoreMessage,
     async (roomToken, payload) => {
 
     });
+
+injectable(MessageStoreModules.GetMessages,
+  [ KeyValueStorageModules.Range ],
+  async (range: KeyValueStorageTypes.Range): Promise<MessageStoreTypes.GetMessages> =>
+
+    async (roomToken, offset, size) => {
+      return null;
+    });
