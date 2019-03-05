@@ -20,6 +20,9 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
   },
   fcm: {
     privKeyPath: null
+  },
+  kvStorage: {
+    provider: null
   }
 }));
 
@@ -32,7 +35,11 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'CREDENTIAL_AUTH_SESSION_EXPIRES', path: ['credential', 'sessionExpires'], defaultValue: 60 },
     { key: 'CREDENTIAL_ROOM_SECRET', path: ['credential', 'roomSecret'] },
     { key: 'EXTAPI_ROOM_URI', path: ['extapi', 'roomBaseUri'] },
-    { key: 'FCM_PRIVKEY_PATH', path: ['fcm', 'privKeyPath'] }
+    { key: 'FCM_PRIVKEY_PATH', path: ['fcm', 'privKeyPath'] },
+    { key: 'KV_STORAGE_PROVIDER', path: ['kvStorage', 'provider'], defaultValue: 'MEMORY' },
+    { key: 'KV_STORAGE_REDIS_HOST', path: ['kvStorage', 'redis', 'host'], defaultValue: null },
+    { key: 'KV_STORAGE_REDIS_PORT', path: ['kvStorage', 'redis', 'port'], defaultValue: null },
+    { key: 'KV_STORAGE_REDIS_PASSWORD', path: ['kvStorage', 'redis', 'password'], defaultValue: null }
   ]));
 
 injectable(ConfigModules.ConfigSource,
@@ -62,6 +69,10 @@ injectable(ConfigModules.ExternalApiConfig,
 injectable(ConfigModules.FcmConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.fcm);
+
+injectable(ConfigModules.KeyValueStorageConfig,
+  [ConfigModules.RootConfig],
+  async (root: ConfigTypes.RootConfig) => root.kvStorage);
 
 injectable(ConfigModules.Env,
   [ConfigModules.ConfigSource],
