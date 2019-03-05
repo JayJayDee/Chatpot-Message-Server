@@ -6,6 +6,7 @@ export namespace ConfigModules {
   export const RootConfig = 'Config/RootConfig';
   export const HttpConfig = 'Config/HttpConfig';
   export const FcmConfig = 'Config/FcmConfig';
+  export const KeyValueStorageConfig = 'Config/KeyValueStorageConfig';
   export const ExternalApiConfig = 'Config/ExternalApiConfig';
   export const CredentialConfig = 'Config/CredentialConfig';
   export const Env = 'Config/Env';

@@ -4,6 +4,7 @@ export namespace ConfigTypes {
     credential: CredentialConfig;
     extapi: ExternalApiConfig;
     fcm: FcmConfig;
+    kvStorage: KeyValueStorageConfig;
   };
   export type HttpConfig = {
     port: number;
@@ -17,6 +18,18 @@ export namespace ConfigTypes {
     authSecret: string;
     roomSecret: string;
   };
+  export type KeyValueStorageConfig = {
+    provider: CacheProvider;
+    redis?: RedisConfig;
+  };
+  export type RedisConfig = {
+    host: string;
+    port: number;
+    password?: string;
+  };
+  export enum CacheProvider {
+    MEMORY = 'MEMORY', REDIS = 'REDIS'
+  }
   export type ExternalApiConfig = {
     roomBaseUri: string;
   };
