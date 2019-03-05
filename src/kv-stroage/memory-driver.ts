@@ -11,7 +11,10 @@ const initMemoryDriver = () =>
     log.info('[kv-storage] using in-memory storage..');
     return {
       get: memoryGet(storage, expset),
-      set: memorySet(storage, expset)
+      set: memorySet(storage, expset),
+      push: memoryPush(storage),
+      range: memoryRange(storage),
+      del: memoryDel(storage)
     };
   };
 export default initMemoryDriver;
@@ -44,4 +47,22 @@ const memorySet =
       if (expires) {
         expset[key] = Date.now() + expires;
       }
+    };
+
+const memoryPush =
+  (storage: Storage): KeyValueStorageTypes.Push =>
+    async (key, value) => {
+
+    };
+
+const memoryRange =
+  (storage: Storage): KeyValueStorageTypes.Range =>
+    async (key, start, end) => {
+      return [];
+    };
+
+const memoryDel =
+  (storage: Storage): KeyValueStorageTypes.Del =>
+    async (key) => {
+
     };

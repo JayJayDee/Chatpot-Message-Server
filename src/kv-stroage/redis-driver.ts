@@ -14,7 +14,10 @@ const initRedisDriver =
       log.info('[kv-storage] redis connection established');
       return {
         get: redisGet(client),
-        set: redisSet(client)
+        set: redisSet(client),
+        push: redisPushQueue(client),
+        range: redisRange(client),
+        del: redisDel(client)
       };
     };
 export default initRedisDriver;
@@ -53,4 +56,22 @@ const redisSet = (client: RedisClient): KeyValueStorageTypes.Set =>
           resolve();
         });
       });
+    });
+
+const redisPushQueue = (client: RedisClient): KeyValueStorageTypes.Push =>
+  (key: string, value: any) =>
+    new Promise((resolve, reject) => {
+
+    });
+
+const redisRange = (client: RedisClient): KeyValueStorageTypes.Range =>
+  (key: string, start: number, end: number) =>
+    new Promise((resolve, reject) => {
+
+    });
+
+const redisDel = (client: RedisClient): KeyValueStorageTypes.Del =>
+  (key: string) =>
+    new Promise((resolve, reject) => {
+
     });
