@@ -2,6 +2,7 @@ import { injectable } from 'smart-factory';
 import { EndpointModules } from './modules';
 import { UtilModules, UtilTypes } from '../utils';
 import { EndpointTypes } from './types';
+import { InvalidParamError } from '../errors';
 
 injectable(EndpointModules.Message.Publish,
   [ UtilModules.Auth.DecryptRoomToken,
@@ -16,10 +17,20 @@ injectable(EndpointModules.Message.Publish,
       method: EndpointTypes.EndpointMethod.POST,
       handler: [
         wrapAsync(async (req, res, next) => {
+          const type = req.body['type'];
+          const roomToken = req.body['room_token'];
+          const memberToken = req.body['member_token'];
+          const content = req.body['content'];
+
+          if (!type || !memberToken || !roomToken || !content) {
+            throw new InvalidParamError('type, member_token, room_token, content required');
+          }
+
           res.status(200).json({});
         })
       ]
     }));
+
 
 injectable(EndpointModules.Message.Messages,
   [ UtilModules.Auth.DecryptRoomToken,
