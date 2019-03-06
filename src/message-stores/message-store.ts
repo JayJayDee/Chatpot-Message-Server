@@ -12,8 +12,10 @@ injectable(MessageStoreModules.StoreMessage,
     });
 
 injectable(MessageStoreModules.GetMessages,
-  [ KeyValueStorageModules.Range ],
-  async (range: KeyValueStorageTypes.Range): Promise<MessageStoreTypes.GetMessages> =>
+  [ KeyValueStorageModules.Range,
+    KeyValueStorageModules.Length ],
+  async (range: KeyValueStorageTypes.Range,
+    length: KeyValueStorageTypes.Length): Promise<MessageStoreTypes.GetMessages> =>
 
     async (roomToken, offset, size) => {
       const key = `MESSAGES_${roomToken}`;
