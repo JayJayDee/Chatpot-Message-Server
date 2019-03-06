@@ -17,7 +17,8 @@ const initRedisDriver =
         set: redisSet(client),
         push: redisPushQueue(client),
         range: redisRange(client),
-        del: redisDel(client)
+        del: redisDel(client),
+        length: redisLength(client)
       };
     };
 export default initRedisDriver;
@@ -71,6 +72,12 @@ const redisRange = (client: RedisClient): KeyValueStorageTypes.Range =>
     });
 
 const redisDel = (client: RedisClient): KeyValueStorageTypes.Del =>
+  (key: string) =>
+    new Promise((resolve, reject) => {
+
+    });
+
+const redisLength = (client: RedisClient): KeyValueStorageTypes.Length =>
   (key: string) =>
     new Promise((resolve, reject) => {
 

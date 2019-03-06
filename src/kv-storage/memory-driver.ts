@@ -16,7 +16,8 @@ const initMemoryDriver = () =>
       set: memorySet(storage, expset),
       push: memoryPush(storage),
       range: memoryRange(storage),
-      del: memoryDel(storage)
+      del: memoryDel(storage),
+      length: memoryLength(storage)
     };
   };
 export default initMemoryDriver;
@@ -75,4 +76,13 @@ const memoryDel =
       if (storage[key]) {
         delete storage[key];
       }
+    };
+
+const memoryLength =
+  (storage: Storage): KeyValueStorageTypes.Length =>
+    async (key) => {
+      const arr: any[] = storage[key];
+      if (!arr) throw new KvStorageKeyNotfoundError(`key:${key} not found`);
+      if (!isArray(arr)) throw new KvStorageInvalidOpsError(`key:${key} was not an array`);
+      return arr.length;
     };

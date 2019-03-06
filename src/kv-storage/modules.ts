@@ -5,4 +5,5 @@ export namespace KeyValueStorageModules {
   export const Push = 'KvStorage/Push';
   export const Range = 'KvStorage/Range';
   export const Del = 'KvStorage/Del';
+  export const Length = 'KvStorage/Length';
 }

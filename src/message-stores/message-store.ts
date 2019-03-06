@@ -16,5 +16,13 @@ injectable(MessageStoreModules.GetMessages,
   async (range: KeyValueStorageTypes.Range): Promise<MessageStoreTypes.GetMessages> =>
 
     async (roomToken, offset, size) => {
-      return null;
+      const key = `MESSAGES_${roomToken}`;
+      const messages: any[] = await range(key, offset, offset + size);
+      console.log(messages);
+      return {
+        messages: [],
+        all: 0,
+        size,
+        offset
+      };
     });

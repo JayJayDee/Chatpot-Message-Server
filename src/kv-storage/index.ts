@@ -44,5 +44,9 @@ injectable(KeyValueStorageModules.Del,
   [ KeyValueStorageModules.Operations ],
   async (ops: KeyValueStorageTypes.StorageOperations) => ops.del);
 
+injectable(KeyValueStorageModules.Length,
+  [ KeyValueStorageModules.Operations ],
+  async (ops: KeyValueStorageTypes.StorageOperations) => ops.length);
+
 export { KeyValueStorageTypes } from './types';
 export { KeyValueStorageModules } from './modules';
