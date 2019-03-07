@@ -16,7 +16,8 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
     roomSecret: null
   },
   extapi: {
-    roomBaseUri: null
+    roomBaseUri: null,
+    authBaseUri: null
   },
   fcm: {
     privKeyPath: null
@@ -35,6 +36,7 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'CREDENTIAL_AUTH_SESSION_EXPIRES', path: ['credential', 'sessionExpires'], defaultValue: 60 },
     { key: 'CREDENTIAL_ROOM_SECRET', path: ['credential', 'roomSecret'] },
     { key: 'EXTAPI_ROOM_URI', path: ['extapi', 'roomBaseUri'] },
+    { key: 'EXTAPI_AUTH_URI', path: ['extapi', 'authBaseUri'] },
     { key: 'FCM_PRIVKEY_PATH', path: ['fcm', 'privKeyPath'] },
     { key: 'KV_STORAGE_PROVIDER', path: ['kvStorage', 'provider'], defaultValue: 'MEMORY' },
     { key: 'KV_STORAGE_REDIS_HOST', path: ['kvStorage', 'redis', 'host'], defaultValue: null },

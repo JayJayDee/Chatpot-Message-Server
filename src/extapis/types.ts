@@ -1,3 +1,5 @@
+import { Member } from '../common-types';
+
 export namespace ExtApiTypes {
   export enum RequestMethod {
     POST = 'post', GET = 'get'
@@ -10,4 +12,8 @@ export namespace ExtApiTypes {
     headers?: {[key: string]: any};
   };
   export type Request = (param: RequestParam) => Promise<any>;
+
+  export namespace Auth {
+    export type RequestMembers = (memberNos: number[]) => Promise<Member[]>;
+  }
 }

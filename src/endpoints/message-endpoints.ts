@@ -25,7 +25,10 @@ injectable(EndpointModules.Message.Publish,
           if (!type || !memberToken || !roomToken || !content) {
             throw new InvalidParamError('type, member_token, room_token, content required');
           }
-
+          const member = decMemberToken(memberToken);
+          const room = decRoomToken(roomToken);
+          if (!member) throw new InvalidParamError('invalid member token');
+          if (!room) throw new InvalidParamError('invalid room token');
           res.status(200).json({});
         })
       ]

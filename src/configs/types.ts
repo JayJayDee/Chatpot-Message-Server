@@ -32,6 +32,7 @@ export namespace ConfigTypes {
   }
   export type ExternalApiConfig = {
     roomBaseUri: string;
+    authBaseUri: string;
   };
   export enum Env {
     DEV = 'DEV',
