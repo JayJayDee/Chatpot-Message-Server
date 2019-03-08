@@ -4,6 +4,8 @@ import { UtilModules, UtilTypes } from '../utils';
 import { EndpointTypes } from './types';
 import { InvalidParamError, BaseLogicError } from '../errors';
 import { ExtApiModules, ExtApiTypes } from '../extapis';
+import { toMessageType, ReceptionType } from '../common-types';
+import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 
 class MemberNotFoundError extends BaseLogicError {
   constructor(payload: any) {
@@ -15,11 +17,13 @@ injectable(EndpointModules.Message.Publish,
   [ UtilModules.Auth.DecryptRoomToken,
     UtilModules.Auth.DecryptMemberToken,
     EndpointModules.Utils.WrapAync,
-    ExtApiModules.Auth.RequestMembers ],
+    ExtApiModules.Auth.RequestMembers,
+    MessageStoreModules.StoreMessage ],
   async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
     decMemberToken: UtilTypes.Auth.DecryptMemberToken,
     wrapAsync: EndpointTypes.Utils.WrapAsync,
-    reqMembers: ExtApiTypes.Auth.RequestMembers): Promise<EndpointTypes.Endpoint> =>
+    reqMembers: ExtApiTypes.Auth.RequestMembers,
+    storeMessage: MessageStoreTypes.StoreMessage): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/message/room/:room_token/publish',
@@ -39,6 +43,9 @@ injectable(EndpointModules.Message.Publish,
           if (!member) throw new InvalidParamError('invalid member token');
           if (!room) throw new InvalidParamError('invalid room token');
 
+          const msgType = toMessageType(type);
+          if (!msgType) throw new InvalidParamError('invalid message type');
+
           try {
             content = JSON.parse(content);
           } catch (err) {
@@ -48,7 +55,16 @@ injectable(EndpointModules.Message.Publish,
           const members = await reqMembers([ member.member_no ]);
           if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
 
-          // TODO: store message.
+          const payload = {
+            type: msgType,
+            from: members[0],
+            to: {
+              type: ReceptionType.ROOM,
+              token: roomToken
+            },
+            content
+          };
+          storeMessage(roomToken, payload);
 
           // TODO: publish to rebbitmq topic
 

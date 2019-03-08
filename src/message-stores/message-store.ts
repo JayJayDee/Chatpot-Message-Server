@@ -2,14 +2,19 @@ import { injectable } from 'smart-factory';
 import { MessageStoreModules } from './modules';
 import { KeyValueStorageModules, KeyValueStorageTypes } from '../kv-storage';
 import { MessageStoreTypes } from './types';
+import { LoggerModules, LoggerTypes } from '../loggers';
 
 injectable(MessageStoreModules.StoreMessage,
-  [ KeyValueStorageModules.Push ],
-  async (push: KeyValueStorageTypes.Push): Promise<MessageStoreTypes.StoreMessage> =>
+  [ KeyValueStorageModules.Push,
+    LoggerModules.Logger ],
+  async (push: KeyValueStorageTypes.Push,
+    log: LoggerTypes.Logger): Promise<MessageStoreTypes.StoreMessage> =>
 
     async (roomToken, payload) => {
-
+      log.debug(`[message-store] messsage stored to topic: ${roomToken}`);
+      await push(roomToken, payload, 100);
     });
+
 
 injectable(MessageStoreModules.GetMessages,
   [ KeyValueStorageModules.Range,

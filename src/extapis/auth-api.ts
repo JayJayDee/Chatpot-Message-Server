@@ -2,6 +2,7 @@ import { injectable } from 'smart-factory';
 import { ExtApiModules } from './modules';
 import { ExtApiTypes } from './types';
 import { ConfigModules, ConfigTypes } from '../configs';
+import { toMember } from '../common-types';
 
 injectable(ExtApiModules.Auth.RequestMembers,
   [ ExtApiModules.Requestor,
@@ -18,17 +19,6 @@ injectable(ExtApiModules.Auth.RequestMembers,
           member_nos: memberNos
         }
       });
-      const members = resp.map((elem: any) => ({
-        token: elem.token,
-        region: elem.region,
-        language: elem.language,
-        gender: elem.gender,
-        nick: {
-          ko: elem.nick.ko,
-          ja: elem.nick.ja,
-          en: elem.nick.en
-        },
-        avatar: elem.avatar
-      })); // TODO: mapping function export required
+      const members = resp.map(toMember);
       return members;
     });

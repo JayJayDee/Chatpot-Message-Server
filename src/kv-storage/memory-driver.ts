@@ -55,8 +55,11 @@ const memorySet =
 const memoryPush =
   (storage: Storage): KeyValueStorageTypes.Push =>
     async (key, value, maxSize) => {
-      const arr: any[] = storage[key];
-      if (!arr) storage[key] = [];
+      let arr: any[] = storage[key];
+      if (!arr) {
+        storage[key] = [];
+        arr = storage[key];
+      }
       if (arr.length >= maxSize) arr.pop();
       arr.unshift(value);
     };
