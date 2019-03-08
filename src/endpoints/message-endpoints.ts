@@ -26,7 +26,7 @@ injectable(EndpointModules.Message.Publish,
     storeMessage: MessageStoreTypes.StoreMessage): Promise<EndpointTypes.Endpoint> =>
 
     ({
-      uri: '/message/room/:room_token/publish',
+      uri: '/room/:room_token/publish',
       method: EndpointTypes.EndpointMethod.POST,
       handler: [
         wrapAsync(async (req, res, next) => {
@@ -81,10 +81,21 @@ injectable(EndpointModules.Message.Messages,
     wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> =>
 
     ({
-      uri: '/messages',
+      uri: '/room/:room_token/messages',
       method: EndpointTypes.EndpointMethod.GET,
       handler: [
         wrapAsync(async (req, res, next) => {
+          let size = req.query['size'];
+          let offset = req.query['offset'];
+          const roomToken = req.params['room_token'];
+
+          if (!size || !offset) {
+            size = 10;
+            offset = 0;
+          }
+          if (!roomToken) throw new InvalidParamError('room_token required');
+          if (!decRoomToken(roomToken)) throw new InvalidParamError('invalid room_token');
+
           res.status(200).json({});
         })
       ]
