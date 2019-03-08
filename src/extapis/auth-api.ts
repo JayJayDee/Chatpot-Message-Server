@@ -18,6 +18,17 @@ injectable(ExtApiModules.Auth.RequestMembers,
           member_nos: memberNos
         }
       });
-      console.log(resp);
-      return [];
+      const members = resp.map((elem: any) => ({
+        token: elem.token,
+        region: elem.region,
+        language: elem.language,
+        gender: elem.gender,
+        nick: {
+          ko: elem.nick.ko,
+          ja: elem.nick.ja,
+          en: elem.nick.en
+        },
+        avatar: elem.avatar
+      })); // TODO: mapping function export required
+      return members;
     });

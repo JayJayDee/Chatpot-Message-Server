@@ -22,14 +22,14 @@ injectable(EndpointModules.Message.Publish,
     reqMembers: ExtApiTypes.Auth.RequestMembers): Promise<EndpointTypes.Endpoint> =>
 
     ({
-      uri: '/message/publish',
+      uri: '/message/room/:room_token/publish',
       method: EndpointTypes.EndpointMethod.POST,
       handler: [
         wrapAsync(async (req, res, next) => {
           const type = req.body['type'];
-          const roomToken = req.body['room_token'];
+          const roomToken = req.params['room_token'];
           const memberToken = req.body['member_token'];
-          const content = req.body['content'];
+          let content = req.body['content'];
 
           if (!type || !memberToken || !roomToken || !content) {
             throw new InvalidParamError('type, member_token, room_token, content required');
@@ -39,8 +39,18 @@ injectable(EndpointModules.Message.Publish,
           if (!member) throw new InvalidParamError('invalid member token');
           if (!room) throw new InvalidParamError('invalid room token');
 
+          try {
+            content = JSON.parse(content);
+          } catch (err) {
+            throw new InvalidParamError('content must be json-string');
+          }
+
           const members = await reqMembers([ member.member_no ]);
           if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
+
+          // TODO: store message.
+
+          // TODO: publish to rebbitmq topic
 
           res.status(200).json({});
         })
