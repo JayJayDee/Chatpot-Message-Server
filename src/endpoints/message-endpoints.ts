@@ -2,15 +2,24 @@ import { injectable } from 'smart-factory';
 import { EndpointModules } from './modules';
 import { UtilModules, UtilTypes } from '../utils';
 import { EndpointTypes } from './types';
-import { InvalidParamError } from '../errors';
+import { InvalidParamError, BaseLogicError } from '../errors';
+import { ExtApiModules, ExtApiTypes } from '../extapis';
+
+class MemberNotFoundError extends BaseLogicError {
+  constructor(payload: any) {
+    super('MEMBER_NOT_FOUND', payload);
+  }
+}
 
 injectable(EndpointModules.Message.Publish,
   [ UtilModules.Auth.DecryptRoomToken,
     UtilModules.Auth.DecryptMemberToken,
-    EndpointModules.Utils.WrapAync ],
+    EndpointModules.Utils.WrapAync,
+    ExtApiModules.Auth.RequestMembers ],
   async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
     decMemberToken: UtilTypes.Auth.DecryptMemberToken,
-    wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> =>
+    wrapAsync: EndpointTypes.Utils.WrapAsync,
+    reqMembers: ExtApiTypes.Auth.RequestMembers): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/message/publish',
@@ -29,6 +38,10 @@ injectable(EndpointModules.Message.Publish,
           const room = decRoomToken(roomToken);
           if (!member) throw new InvalidParamError('invalid member token');
           if (!room) throw new InvalidParamError('invalid room token');
+
+          const members = await reqMembers([ member.member_no ]);
+          if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
+
           res.status(200).json({});
         })
       ]
