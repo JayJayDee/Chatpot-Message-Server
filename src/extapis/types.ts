@@ -1,4 +1,4 @@
-import { Member } from '../common-types';
+import { Member, Room } from '../common-types';
 
 export namespace ExtApiTypes {
   export enum RequestMethod {
@@ -15,5 +15,8 @@ export namespace ExtApiTypes {
 
   export namespace Auth {
     export type RequestMembers = (memberNos: number[]) => Promise<Member[]>;
+  }
+  export namespace Room {
+    export type RequestRooms = (roomNos: number[]) => Promise<Room[]>;
   }
 }

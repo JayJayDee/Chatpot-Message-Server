@@ -4,4 +4,7 @@ export namespace ExtApiModules {
   export enum Auth {
     RequestMembers = 'ExtApi/Auth/RequestMembers'
   }
+  export enum Room {
+    RequestRooms = 'ExtApi/Room/RequestRooms'
+  }
 }

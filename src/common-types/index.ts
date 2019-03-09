@@ -1,5 +1,6 @@
 export {
   Member,
+  Room,
   Reception,
   ReceptionType,
   Nick,

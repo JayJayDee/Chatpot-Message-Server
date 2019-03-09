@@ -7,6 +7,10 @@ export type Member = {
   nick: Nick;
 };
 
+export type Room = {
+  title: string;
+};
+
 export type Reception = {
   type: ReceptionType;
   token: string;
