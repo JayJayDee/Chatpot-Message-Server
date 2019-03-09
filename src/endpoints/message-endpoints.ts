@@ -6,6 +6,7 @@ import { InvalidParamError, BaseLogicError } from '../errors';
 import { ExtApiModules, ExtApiTypes } from '../extapis';
 import { toMessageType, ReceptionType } from '../common-types';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
+import { createHash } from 'crypto';
 
 class MemberNotFoundError extends BaseLogicError {
   constructor(payload: any) {
@@ -62,6 +63,7 @@ injectable(EndpointModules.Message.Publish,
           if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
 
           const payload = {
+            message_id: generateMessageId(roomToken, memberToken),
             type: msgType,
             from: members[0],
             to: {
@@ -74,7 +76,9 @@ injectable(EndpointModules.Message.Publish,
 
           // TODO: publish to rebbitmq topic
 
-          res.status(200).json({});
+          res.status(200).json({
+            message_id: payload.message_id
+          });
         })
       ]
     }));
@@ -113,3 +117,8 @@ injectable(EndpointModules.Message.Messages,
         })
       ]
     }));
+
+const generateMessageId = (roomToken: string, memberToken: string): string =>
+  createHash('sha256')
+    .update(`${roomToken}${memberToken}${process.hrtime()[1]}`)
+    .digest('hex');

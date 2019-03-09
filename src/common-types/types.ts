@@ -34,6 +34,7 @@ export enum MessageType {
 }
 
 export type MessagePayload = {
+  message_id: string;
   type: MessageType;
   from: Member;
   to: Reception;

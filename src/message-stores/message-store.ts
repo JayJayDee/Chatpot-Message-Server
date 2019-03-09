@@ -12,27 +12,29 @@ injectable(MessageStoreModules.StoreMessage,
 
     async (roomToken, payload) => {
       const key = generateKey(roomToken);
-      log.debug(`[message-store] messsage stored to topic: ${key}`);
+      log.debug(`[message-store] storing message to topic: ${key}`);
       await push(key, payload, 100);
     });
 
 
 injectable(MessageStoreModules.GetMessages,
   [ KeyValueStorageModules.Range,
-    KeyValueStorageModules.Length ],
+    KeyValueStorageModules.Length,
+    LoggerModules.Logger ],
   async (range: KeyValueStorageTypes.Range,
-    length: KeyValueStorageTypes.Length): Promise<MessageStoreTypes.GetMessages> =>
+    length: KeyValueStorageTypes.Length,
+    log: LoggerTypes.Logger): Promise<MessageStoreTypes.GetMessages> =>
 
     async (roomToken, offset, size) => {
       const key = generateKey(roomToken);
-      console.log(key);
+      log.debug(`[message-store] fetching messages from topic: ${key}`);
       const messages: any[] = await range(key, offset, offset + size);
       const all = await length(key);
       return {
         messages,
         all,
-        size,
-        offset
+        offset,
+        size: messages.length
       };
     });
 
