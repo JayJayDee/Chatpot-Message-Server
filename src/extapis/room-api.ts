@@ -10,5 +10,12 @@ injectable(ExtApiModules.Room.RequestRooms,
     cfg: ConfigTypes.ExternalApiConfig): Promise<ExtApiTypes.Room.RequestRooms> =>
 
     async (roomNos) => {
+      const uri = `${cfg.roomBaseUri}/internal/rooms`;
+      const resp = await request({
+        uri,
+        method: ExtApiTypes.RequestMethod.GET,
+        qs: { room_nos: roomNos }
+      });
+      console.log(resp);
       return [];
     });
