@@ -5,8 +5,8 @@ export {
   Nick,
   Avatar,
   MessageType,
-  MessagePayload,
-  ImageMessageContent
+  MessageBodyPayload,
+  PushMessage
 } from './types';
 
 export { toMember, toMessageType } from './converters';

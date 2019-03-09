@@ -33,7 +33,7 @@ export enum MessageType {
   IMAGE = 'IMAGE'
 }
 
-export type MessagePayload = {
+export type MessageBodyPayload = {
   message_id: string;
   type: MessageType;
   from: Member;
@@ -42,7 +42,9 @@ export type MessagePayload = {
   sent_time: number;
 };
 
-export type ImageMessageContent = {
-  img: string;
-  thumb: string;
+export type PushMessage = {
+  title: string;
+  subtitle: string;
+  topic: string;
+  body: MessageBodyPayload;
 };
