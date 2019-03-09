@@ -39,6 +39,7 @@ export type MessagePayload = {
   from: Member;
   to: Reception;
   content: {[key: string]: any};
+  sent_time: number;
 };
 
 export type ImageMessageContent = {

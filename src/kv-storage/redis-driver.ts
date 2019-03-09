@@ -1,3 +1,4 @@
+import { isArray, isObject } from 'util';
 import { createClient, RedisClient } from 'redis';
 import { KeyValueStorageTypes } from './types';
 import { ConfigTypes } from '../configs';
@@ -62,23 +63,52 @@ const redisSet = (client: RedisClient): KeyValueStorageTypes.Set =>
 const redisPushQueue = (client: RedisClient): KeyValueStorageTypes.Push =>
   (key: string, value: any, maxSize: number) =>
     new Promise((resolve, reject) => {
-
+      let payload: any = value;
+      if (isObject(value) || isArray(value)) {
+        payload = JSON.stringify(payload);
+      }
+      client.multi()
+        .lpush(key, payload)
+        .ltrim(key, 0, maxSize - 1)
+        .exec((err, resp) => {
+          if (err) return reject(err);
+          resolve();
+        });
     });
 
 const redisRange = (client: RedisClient): KeyValueStorageTypes.Range =>
   (key: string, start: number, end: number) =>
     new Promise((resolve, reject) => {
-
+      client.lrange(key, start, end - 1, (err, resp) => {
+        if (err) return reject(err);
+        const resps: any[] = resp.map((elem: any) => {
+          try {
+            return JSON.parse(elem);
+          } catch (err) {
+            return elem;
+          }
+        });
+        resolve(resps);
+      });
     });
 
 const redisDel = (client: RedisClient): KeyValueStorageTypes.Del =>
   (key: string) =>
     new Promise((resolve, reject) => {
-
+      client.del(key, (err, resp) => {
+        if (err) return reject(err);
+        resolve();
+      });
     });
 
 const redisLength = (client: RedisClient): KeyValueStorageTypes.Length =>
   (key: string) =>
     new Promise((resolve, reject) => {
-
+      client.llen(key, (err, resp) => {
+        if (err) return reject(err);
+        client.llen(key, (err, resp) => {
+          if (err) return reject(err);
+          resolve(resp);
+        });
+      });
     });

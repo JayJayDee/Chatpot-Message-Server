@@ -70,7 +70,8 @@ injectable(EndpointModules.Message.Publish,
               type: ReceptionType.ROOM,
               token: roomToken
             },
-            content
+            content,
+            sent_time: Date.now()
           };
           storeMessage(roomToken, payload);
 
@@ -104,7 +105,12 @@ injectable(EndpointModules.Message.Messages,
           if (!size || !offset) {
             size = 10;
             offset = 0;
+          } else {
+            size = parseInt(size);
+            offset = parseInt(offset);
           }
+
+          if (size === 0) throw new InvalidParamError('size must be larger than 0');
           if (!roomToken) throw new InvalidParamError('room_token required');
           if (!decRoomToken(roomToken)) throw new InvalidParamError('invalid room_token');
 
