@@ -5,6 +5,7 @@ export namespace ConfigTypes {
     extapi: ExternalApiConfig;
     fcm: FcmConfig;
     kvStorage: KeyValueStorageConfig;
+    amqp: AmqpConfig;
   };
   export type HttpConfig = {
     port: number;
@@ -33,6 +34,12 @@ export namespace ConfigTypes {
   export type ExternalApiConfig = {
     roomBaseUri: string;
     authBaseUri: string;
+  };
+  export type AmqpConfig = {
+    host: string;
+    port: number;
+    login: string;
+    password: string;
   };
   export enum Env {
     DEV = 'DEV',

@@ -9,6 +9,7 @@ export namespace ConfigModules {
   export const KeyValueStorageConfig = 'Config/KeyValueStorageConfig';
   export const ExternalApiConfig = 'Config/ExternalApiConfig';
   export const CredentialConfig = 'Config/CredentialConfig';
+  export const AmqpConfig = 'Config/AmqpConfig';
   export const Env = 'Config/Env';
   export const ConfigRules = 'Config/ConfigRules';
 }

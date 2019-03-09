@@ -24,6 +24,12 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
   },
   kvStorage: {
     provider: null
+  },
+  amqp: {
+    host: null,
+    port: null,
+    login: null,
+    password: null
   }
 }));
 
@@ -41,7 +47,11 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'KV_STORAGE_PROVIDER', path: ['kvStorage', 'provider'], defaultValue: 'MEMORY' },
     { key: 'KV_STORAGE_REDIS_HOST', path: ['kvStorage', 'redis', 'host'], defaultValue: null },
     { key: 'KV_STORAGE_REDIS_PORT', path: ['kvStorage', 'redis', 'port'], defaultValue: null },
-    { key: 'KV_STORAGE_REDIS_PASSWORD', path: ['kvStorage', 'redis', 'password'], defaultValue: null }
+    { key: 'KV_STORAGE_REDIS_PASSWORD', path: ['kvStorage', 'redis', 'password'], defaultValue: null },
+    { key: 'AMQP_HOST', path: ['amqp', 'host'] },
+    { key: 'AMQP_PORT', path: ['amqp', 'port'] },
+    { key: 'AMQP_LOGIN', path: ['amqp', 'login'] },
+    { key: 'AMQP_PASSWORD', path: ['amqp', 'password'] }
   ]));
 
 injectable(ConfigModules.ConfigSource,
@@ -75,6 +85,10 @@ injectable(ConfigModules.FcmConfig,
 injectable(ConfigModules.KeyValueStorageConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.kvStorage);
+
+injectable(ConfigModules.AmqpConfig,
+  [ConfigModules.RootConfig],
+  async (root: ConfigTypes.RootConfig) => root.amqp);
 
 injectable(ConfigModules.Env,
   [ConfigModules.ConfigSource],
