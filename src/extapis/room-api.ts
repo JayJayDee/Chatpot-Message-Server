@@ -16,6 +16,9 @@ injectable(ExtApiModules.Room.RequestRooms,
         method: ExtApiTypes.RequestMethod.GET,
         qs: { room_nos: roomNos }
       });
-      console.log(resp);
-      return [];
+      const rooms = resp.map((r: any) => ({
+        token: r.token,
+        title: r.title
+      }));
+      return rooms;
     });

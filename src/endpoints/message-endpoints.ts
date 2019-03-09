@@ -28,12 +28,14 @@ injectable(EndpointModules.Message.Publish,
     UtilModules.Auth.DecryptMemberToken,
     EndpointModules.Utils.WrapAync,
     ExtApiModules.Auth.RequestMembers,
+    ExtApiModules.Room.RequestRooms,
     MessageStoreModules.StoreMessage,
     QueueModules.Publish ],
   async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
     decMemberToken: UtilTypes.Auth.DecryptMemberToken,
     wrapAsync: EndpointTypes.Utils.WrapAsync,
     reqMembers: ExtApiTypes.Auth.RequestMembers,
+    reqRooms: ExtApiTypes.Room.RequestRooms,
     storeMessage: MessageStoreTypes.StoreMessage,
     publishToQueue: QueueTypes.Publish): Promise<EndpointTypes.Endpoint> =>
 
@@ -67,7 +69,10 @@ injectable(EndpointModules.Message.Publish,
           const members = await reqMembers([ member.member_no ]);
           if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
 
-          const payload = {
+          const rooms = await reqRooms([ room.room_no ]);
+          if (rooms.length === 0) throw new RoomNotFoundError(`room not found: ${roomToken}`);
+
+          const body = {
             message_id: generateMessageId(roomToken, memberToken),
             type: msgType,
             from: members[0],
@@ -79,15 +84,22 @@ injectable(EndpointModules.Message.Publish,
             sent_time: Date.now()
           };
 
+          const pushMessage = {
+            topic: roomToken,
+            title: rooms[0].title,
+            subtitle: rooms[0].title,
+            body
+          };
+
           // non-awaiting async functions. -> for the performance.
-          storeMessage(roomToken, payload);
+          storeMessage(roomToken, body);
           publishToQueue(RABBITMQ_TOPIC_NAME,
-            Buffer.from(JSON.stringify(payload)),
+            Buffer.from(JSON.stringify(pushMessage)),
             QueueTypes.QueueType.EXCHANGE);
           //////
 
           res.status(200).json({
-            message_id: payload.message_id
+            message_id: body.message_id
           });
         })
       ]
