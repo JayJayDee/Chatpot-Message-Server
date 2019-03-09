@@ -11,8 +11,9 @@ injectable(MessageStoreModules.StoreMessage,
     log: LoggerTypes.Logger): Promise<MessageStoreTypes.StoreMessage> =>
 
     async (roomToken, payload) => {
-      log.debug(`[message-store] messsage stored to topic: ${roomToken}`);
-      await push(roomToken, payload, 100);
+      const key = generateKey(roomToken);
+      log.debug(`[message-store] messsage stored to topic: ${key}`);
+      await push(key, payload, 100);
     });
 
 
@@ -23,13 +24,16 @@ injectable(MessageStoreModules.GetMessages,
     length: KeyValueStorageTypes.Length): Promise<MessageStoreTypes.GetMessages> =>
 
     async (roomToken, offset, size) => {
-      const key = `MESSAGES_${roomToken}`;
+      const key = generateKey(roomToken);
+      console.log(key);
       const messages: any[] = await range(key, offset, offset + size);
-      console.log(messages);
+      const all = await length(key);
       return {
-        messages: [],
-        all: 0,
+        messages,
+        all,
         size,
         offset
       };
     });
+
+const generateKey = (roomToken: string) => `ROOM_MSG_${roomToken}`;

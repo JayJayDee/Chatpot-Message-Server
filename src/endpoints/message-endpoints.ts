@@ -13,6 +13,12 @@ class MemberNotFoundError extends BaseLogicError {
   }
 }
 
+class RoomNotFoundError extends BaseLogicError {
+  constructor(payload: any) {
+    super('ROOM_NOT_FOUND', payload);
+  }
+}
+
 injectable(EndpointModules.Message.Publish,
   [ UtilModules.Auth.DecryptRoomToken,
     UtilModules.Auth.DecryptMemberToken,
@@ -76,9 +82,11 @@ injectable(EndpointModules.Message.Publish,
 
 injectable(EndpointModules.Message.Messages,
   [ UtilModules.Auth.DecryptRoomToken,
-    EndpointModules.Utils.WrapAync ],
+    EndpointModules.Utils.WrapAync,
+    MessageStoreModules.GetMessages ],
   async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
-    wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> =>
+    wrapAsync: EndpointTypes.Utils.WrapAsync,
+    getMessages: MessageStoreTypes.GetMessages): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/room/:room_token/messages',
@@ -96,7 +104,12 @@ injectable(EndpointModules.Message.Messages,
           if (!roomToken) throw new InvalidParamError('room_token required');
           if (!decRoomToken(roomToken)) throw new InvalidParamError('invalid room_token');
 
-          res.status(200).json({});
+          try {
+            const resp = await getMessages(roomToken, offset, size);
+            res.status(200).json(resp);
+          } catch (err) {
+            throw new RoomNotFoundError(err.message);
+          }
         })
       ]
     }));
