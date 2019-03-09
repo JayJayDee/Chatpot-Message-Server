@@ -29,6 +29,16 @@ const buildAmqpClient =
           log.error(`[amqp] malformed message received: ${err.message}`);
         }
       }, { noAck: true });
+    },
+    async publish(topic, payload, type = QueueTypes.QueueType.QUEUE) {
+      if (type === QueueTypes.QueueType.QUEUE) {
+        await channel.assertQueue(topic, { durable: true });
+        await channel.sendToQueue(topic, payload);
+      } else if (type === QueueTypes.QueueType.EXCHANGE) {
+        await channel.assertExchange(topic, 'fanout', { durable: true });
+        await channel.publish(topic, '', payload);
+      }
+      log.debug(`[amqp] message published to ${type}:${topic}`);
     }
   });
 

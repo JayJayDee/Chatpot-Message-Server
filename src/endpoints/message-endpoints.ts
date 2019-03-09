@@ -7,6 +7,7 @@ import { ExtApiModules, ExtApiTypes } from '../extapis';
 import { toMessageType, ReceptionType } from '../common-types';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 import { createHash } from 'crypto';
+import { QueueTypes, QueueModules } from '../queues';
 
 class MemberNotFoundError extends BaseLogicError {
   constructor(payload: any) {
@@ -20,17 +21,21 @@ class RoomNotFoundError extends BaseLogicError {
   }
 }
 
+const RABBITMQ_TOPIC_NAME = 'messages';
+
 injectable(EndpointModules.Message.Publish,
   [ UtilModules.Auth.DecryptRoomToken,
     UtilModules.Auth.DecryptMemberToken,
     EndpointModules.Utils.WrapAync,
     ExtApiModules.Auth.RequestMembers,
-    MessageStoreModules.StoreMessage ],
+    MessageStoreModules.StoreMessage,
+    QueueModules.Publish ],
   async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
     decMemberToken: UtilTypes.Auth.DecryptMemberToken,
     wrapAsync: EndpointTypes.Utils.WrapAsync,
     reqMembers: ExtApiTypes.Auth.RequestMembers,
-    storeMessage: MessageStoreTypes.StoreMessage): Promise<EndpointTypes.Endpoint> =>
+    storeMessage: MessageStoreTypes.StoreMessage,
+    publishToQueue: QueueTypes.Publish): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/room/:room_token/publish',
@@ -73,9 +78,13 @@ injectable(EndpointModules.Message.Publish,
             content,
             sent_time: Date.now()
           };
-          storeMessage(roomToken, payload);
 
-          // TODO: publish to rebbitmq topic
+          // non-awaiting async functions. -> for the performance.
+          storeMessage(roomToken, payload);
+          publishToQueue(RABBITMQ_TOPIC_NAME,
+            Buffer.from(JSON.stringify(payload)),
+            QueueTypes.QueueType.EXCHANGE);
+          //////
 
           res.status(200).json({
             message_id: payload.message_id

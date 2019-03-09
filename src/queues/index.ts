@@ -12,5 +12,13 @@ injectable(QueueModules.AmqpClient,
     log: LoggerTypes.Logger): Promise<QueueTypes.AmqpClient> =>
       initRabbitMq(cfg, log));
 
+injectable(QueueModules.Publish,
+  [ QueueModules.AmqpClient ],
+  async (client: QueueTypes.AmqpClient) => client.publish);
+
+injectable(QueueModules.Subscribe,
+  [ QueueModules.AmqpClient ],
+  async (client: QueueTypes.AmqpClient) => client.subscribe);
+
 export { QueueModules } from './modules';
 export { QueueTypes } from './types';
