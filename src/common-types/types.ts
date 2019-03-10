@@ -42,7 +42,7 @@ export type MessageBodyPayload = {
   type: MessageType;
   from: Member;
   to: Reception;
-  content: {[key: string]: any};
+  content: any;
   sent_time: number;
 };
 

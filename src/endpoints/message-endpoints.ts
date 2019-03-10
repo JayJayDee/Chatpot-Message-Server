@@ -4,7 +4,7 @@ import { UtilModules, UtilTypes } from '../utils';
 import { EndpointTypes } from './types';
 import { InvalidParamError, BaseLogicError } from '../errors';
 import { ExtApiModules, ExtApiTypes } from '../extapis';
-import { toMessageType, ReceptionType } from '../common-types';
+import { toMessageType, ReceptionType, MessageBodyPayload, MessageType } from '../common-types';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 import { createHash } from 'crypto';
 import { QueueTypes, QueueModules } from '../queues';
@@ -63,9 +63,7 @@ injectable(EndpointModules.Message.Publish,
 
           try {
             content = JSON.parse(content);
-          } catch (err) {
-            throw new InvalidParamError('content must be json-string');
-          }
+          } catch (err) {}
 
           const members = await reqMembers([ member.member_no ]);
           if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
@@ -87,8 +85,8 @@ injectable(EndpointModules.Message.Publish,
 
           const pushMessage = {
             topic: roomToken,
-            title: rooms[0].title,
-            subtitle: rooms[0].title,
+            title: `Messages from ${rooms[0].title}`,
+            subtitle: getSubtitle(body),
             body
           };
 
@@ -146,7 +144,18 @@ injectable(EndpointModules.Message.Messages,
       ]
     }));
 
+
 const generateMessageId = (roomToken: string, memberToken: string): string =>
   createHash('sha256')
     .update(`${roomToken}${memberToken}${process.hrtime()[1]}`)
     .digest('hex');
+
+
+const getSubtitle = (body: MessageBodyPayload): string => {
+  if (body.type === MessageType.TEXT) return body.content as string;
+  else if (body.type === MessageType.IMAGE) return 'Picture';
+  else if (body.type === MessageType.NOTIFICATION) {
+    return 'notifictaion';
+  }
+  return 'alarm';
+};
