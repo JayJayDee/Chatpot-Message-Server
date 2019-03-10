@@ -10,13 +10,17 @@ injectable(DeviceStoreModules.Register,
       const sql = `
         INSERT INTO
           chatpot_device
-        SET
-          member_no=?,
-          device_token=?,
-          reg_date=NOW()
+          (member_no, device_token, reg_date)
+        SELECT
+          ?, ?, NOW()
+        WHERE
+          (SELECT COUNT(no) FROM
+            chatpot_device WHERE
+              member_no=? AND device_token=?) = 0
       `;
-      console.log(param);
-      await mysql.query(sql, [ param.memberNo, param.deviceToken ]);
+      await mysql.query(sql,
+        [ param.memberNo, param.deviceToken,
+          param.memberNo, param.deviceToken ]);
     });
 
 injectable(DeviceStoreModules.Unregister,
