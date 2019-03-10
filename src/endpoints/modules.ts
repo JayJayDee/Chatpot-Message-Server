@@ -14,4 +14,9 @@ export namespace EndpointModules {
     Publish = 'Endpoint/Message/Publish',
     Messages = 'Endpoint/Message/Messages'
   }
+
+  export enum Internal {
+    EnterRoom = 'Endpoint/Internal/Enter',
+    LeaveRoom = 'Endpoint/Internal/Leave'
+  }
 }
