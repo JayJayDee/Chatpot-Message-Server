@@ -19,9 +19,6 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
     roomBaseUri: null,
     authBaseUri: null
   },
-  fcm: {
-    privKeyPath: null
-  },
   kvStorage: {
     provider: null
   },
@@ -30,6 +27,10 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
     port: null,
     login: null,
     password: null
+  },
+  topic: {
+    deviceQueue: null,
+    messageExchange: null
   }
 }));
 
@@ -43,7 +44,6 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'CREDENTIAL_ROOM_SECRET', path: ['credential', 'roomSecret'] },
     { key: 'EXTAPI_ROOM_URI', path: ['extapi', 'roomBaseUri'] },
     { key: 'EXTAPI_AUTH_URI', path: ['extapi', 'authBaseUri'] },
-    { key: 'FCM_PRIVKEY_PATH', path: ['fcm', 'privKeyPath'] },
     { key: 'KV_STORAGE_PROVIDER', path: ['kvStorage', 'provider'], defaultValue: 'MEMORY' },
     { key: 'KV_STORAGE_REDIS_HOST', path: ['kvStorage', 'redis', 'host'], defaultValue: null },
     { key: 'KV_STORAGE_REDIS_PORT', path: ['kvStorage', 'redis', 'port'], defaultValue: null },
@@ -51,7 +51,9 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'AMQP_HOST', path: ['amqp', 'host'] },
     { key: 'AMQP_PORT', path: ['amqp', 'port'] },
     { key: 'AMQP_LOGIN', path: ['amqp', 'login'] },
-    { key: 'AMQP_PASSWORD', path: ['amqp', 'password'] }
+    { key: 'AMQP_PASSWORD', path: ['amqp', 'password'] },
+    { key: 'TOPIC_DEVICE_QUEUE', path: ['topic', 'deviceQueue'] },
+    { key: 'TOPIC_MESSAGE_EXCHANGE', path: ['topic', 'messageExchange'] }
   ]));
 
 injectable(ConfigModules.ConfigSource,
@@ -78,10 +80,6 @@ injectable(ConfigModules.ExternalApiConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.extapi);
 
-injectable(ConfigModules.FcmConfig,
-  [ConfigModules.RootConfig],
-  async (root: ConfigTypes.RootConfig) => root.fcm);
-
 injectable(ConfigModules.KeyValueStorageConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.kvStorage);
@@ -89,6 +87,10 @@ injectable(ConfigModules.KeyValueStorageConfig,
 injectable(ConfigModules.AmqpConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.amqp);
+
+injectable(ConfigModules.TopicConfig,
+  [ConfigModules.RootConfig],
+  async (root: ConfigTypes.RootConfig) => root.topic);
 
 injectable(ConfigModules.Env,
   [ConfigModules.ConfigSource],

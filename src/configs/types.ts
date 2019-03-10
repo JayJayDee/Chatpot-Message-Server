@@ -3,15 +3,12 @@ export namespace ConfigTypes {
     http: HttpConfig;
     credential: CredentialConfig;
     extapi: ExternalApiConfig;
-    fcm: FcmConfig;
     kvStorage: KeyValueStorageConfig;
     amqp: AmqpConfig;
+    topic: TopicConfig;
   };
   export type HttpConfig = {
     port: number;
-  };
-  export type FcmConfig = {
-    privKeyPath: string;
   };
   export type CredentialConfig = {
     authEnabled: boolean;
@@ -40,6 +37,10 @@ export namespace ConfigTypes {
     port: number;
     login: string;
     password: string;
+  };
+  export type TopicConfig = {
+    deviceQueue: string;
+    messageExchange: string;
   };
   export enum Env {
     DEV = 'DEV',
