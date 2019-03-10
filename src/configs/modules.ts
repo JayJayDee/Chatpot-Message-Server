@@ -10,6 +10,7 @@ export namespace ConfigModules {
   export const CredentialConfig = 'Config/CredentialConfig';
   export const AmqpConfig = 'Config/AmqpConfig';
   export const TopicConfig = 'Config/TopicConfig';
+  export const MysqlConfig = 'Config/MysqlConfig';
   export const Env = 'Config/Env';
   export const ConfigRules = 'Config/ConfigRules';
 }

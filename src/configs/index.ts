@@ -31,6 +31,14 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
   topic: {
     deviceQueue: null,
     messageExchange: null
+  },
+  mysql: {
+    host: null,
+    port: null,
+    user: null,
+    password: null,
+    database: null,
+    connectionLimit: null
   }
 }));
 
@@ -53,7 +61,13 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'AMQP_LOGIN', path: ['amqp', 'login'] },
     { key: 'AMQP_PASSWORD', path: ['amqp', 'password'] },
     { key: 'TOPIC_DEVICE_QUEUE', path: ['topic', 'deviceQueue'] },
-    { key: 'TOPIC_MESSAGE_EXCHANGE', path: ['topic', 'messageExchange'] }
+    { key: 'TOPIC_MESSAGE_EXCHANGE', path: ['topic', 'messageExchange'] },
+    { key: 'MYSQL_HOST', path: ['mysql', 'host'] },
+    { key: 'MYSQL_PORT', path: ['mysql', 'port'] },
+    { key: 'MYSQL_USER', path: ['mysql', 'user'] },
+    { key: 'MYSQL_PASSWORD', path: ['mysql', 'password'] },
+    { key: 'MYSQL_DATABASE', path: ['mysql', 'database'] },
+    { key: 'MYSQL_CONNECTION_LIMIT', path: ['mysql', 'connectionLimit'], defaultValue: 10 }
   ]));
 
 injectable(ConfigModules.ConfigSource,
@@ -91,6 +105,10 @@ injectable(ConfigModules.AmqpConfig,
 injectable(ConfigModules.TopicConfig,
   [ConfigModules.RootConfig],
   async (root: ConfigTypes.RootConfig) => root.topic);
+
+injectable(ConfigModules.MysqlConfig,
+  [ConfigModules.RootConfig],
+  async (root: ConfigTypes.RootConfig) => root.mysql);
 
 injectable(ConfigModules.Env,
   [ConfigModules.ConfigSource],

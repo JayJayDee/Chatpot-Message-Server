@@ -6,6 +6,7 @@ export namespace ConfigTypes {
     kvStorage: KeyValueStorageConfig;
     amqp: AmqpConfig;
     topic: TopicConfig;
+    mysql: MysqlConfig;
   };
   export type HttpConfig = {
     port: number;
@@ -41,6 +42,14 @@ export namespace ConfigTypes {
   export type TopicConfig = {
     deviceQueue: string;
     messageExchange: string;
+  };
+  export type MysqlConfig = {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
+    connectionLimit: number;
   };
   export enum Env {
     DEV = 'DEV',
