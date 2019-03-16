@@ -3,6 +3,7 @@ import { MessageStoreModules } from './modules';
 import { KeyValueStorageModules, KeyValueStorageTypes } from '../kv-storage';
 import { MessageStoreTypes } from './types';
 import { LoggerModules, LoggerTypes } from '../loggers';
+import { MessageBodyPayload } from '../common-types';
 
 injectable(MessageStoreModules.StoreMessage,
   [ KeyValueStorageModules.Push,
@@ -36,6 +37,21 @@ injectable(MessageStoreModules.GetMessages,
         offset,
         size: messages.length
       };
+    });
+
+
+injectable(MessageStoreModules.GetLastMessages,
+  [ KeyValueStorageModules.GetLasts,
+    LoggerModules.Logger ],
+  async (getLasts: KeyValueStorageTypes.GetLasts,
+    log: LoggerTypes.Logger): Promise<MessageStoreTypes.GetLastMessages> =>
+
+    async (roomTokens) => {
+      const keys = roomTokens.map(generateKey);
+      const lasts = await getLasts(keys);
+      console.log(lasts);
+      const resp: {[key: string]: MessageBodyPayload} = {};
+      return resp;
     });
 
 const generateKey = (roomToken: string) => `ROOM_MSG_${roomToken}`;

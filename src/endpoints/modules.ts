@@ -17,6 +17,7 @@ export namespace EndpointModules {
 
   export enum Internal {
     EnterRoom = 'Endpoint/Internal/Enter',
-    LeaveRoom = 'Endpoint/Internal/Leave'
+    LeaveRoom = 'Endpoint/Internal/Leave',
+    LastMessages = 'Endpoint/Internal/LastMessages'
   }
 }

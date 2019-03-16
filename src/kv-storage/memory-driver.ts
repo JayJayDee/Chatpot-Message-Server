@@ -17,10 +17,26 @@ const initMemoryDriver = () =>
       push: memoryPush(storage),
       range: memoryRange(storage),
       del: memoryDel(storage),
-      length: memoryLength(storage)
+      length: memoryLength(storage),
+      getLasts: memoryGetLasts(storage, expset)
     };
   };
 export default initMemoryDriver;
+
+const memoryGetLasts =
+  (storage: Storage, expset: ExpireSet): KeyValueStorageTypes.GetLasts =>
+    async (keys: string[]) => {
+      const result: {[key: string]: any} = {};
+      keys.map((k) => {
+        if (!isArray(storage[k])) throw new KvStorageInvalidOpsError(`not an array: ${k}`);
+        let value = null;
+        if (isExpires(expset, k) === false && storage[k].length > 0) {
+          value = storage[k][0];
+        }
+        result[k] = value;
+      });
+      return {};
+    };
 
 const memoryGet =
   (storage: Storage, expset: ExpireSet): KeyValueStorageTypes.Get =>

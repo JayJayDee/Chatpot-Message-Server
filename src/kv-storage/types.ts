@@ -5,8 +5,7 @@ export namespace KeyValueStorageTypes {
   export type Range = (key: string, start: number, end: number) => Promise<any[]>;
   export type Del = (key: string) => Promise<void>;
   export type Length = (key: string) => Promise<number>;
-
-  export type Helper = (key: string, fetcher: () => Promise<any>) => Promise<any>;
+  export type GetLasts = (keys: string[]) => Promise<{[key: string]: any}>;
 
   export type StorageOperations = {
     get: Get;
@@ -15,5 +14,8 @@ export namespace KeyValueStorageTypes {
     range: Range;
     del: Del;
     length: Length;
+    getLasts: GetLasts;
   };
+
+  export type Helper = (key: string, fetcher: () => Promise<any>) => Promise<any>;
 }

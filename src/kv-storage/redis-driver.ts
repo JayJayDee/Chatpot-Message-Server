@@ -19,7 +19,8 @@ const initRedisDriver =
         push: redisPushQueue(client),
         range: redisRange(client),
         del: redisDel(client),
-        length: redisLength(client)
+        length: redisLength(client),
+        getLasts: redisGetLasts(client)
       };
     };
 export default initRedisDriver;
@@ -31,6 +32,18 @@ const inspectConnection = (client: RedisClient): Promise<void> =>
       resolve();
     });
   });
+
+const redisGetLasts = (client: RedisClient): KeyValueStorageTypes.GetLasts =>
+  (keys: string[]) =>
+    new Promise((resolve, reject) => {
+      const c = client.multi();
+      keys.map((k) => c.lrange(k, 0, 0));
+      c.exec((err, replies) => {
+        if (err) return reject(err);
+        console.log(replies);
+        resolve({});
+      });
+    });
 
 const redisGet = (client: RedisClient): KeyValueStorageTypes.Get =>
   (key: string) =>

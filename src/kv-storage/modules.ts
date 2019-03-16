@@ -6,4 +6,5 @@ export namespace KeyValueStorageModules {
   export const Range = 'KvStorage/Range';
   export const Del = 'KvStorage/Del';
   export const Length = 'KvStorage/Length';
+  export const GetLasts = 'KvStorage/GetLasts';
 }
