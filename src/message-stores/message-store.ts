@@ -49,8 +49,13 @@ injectable(MessageStoreModules.GetLastMessages,
     async (roomTokens) => {
       const keys = roomTokens.map(generateKey);
       const lasts = await getLasts(keys);
-      console.log(lasts);
       const resp: {[key: string]: MessageBodyPayload} = {};
+
+      Object.keys(lasts).map((k) => {
+        const value = lasts[k];
+        const origKey = roomTokens.find((value, index) => k.includes(value));
+        resp[origKey] = value;
+      });
       return resp;
     });
 

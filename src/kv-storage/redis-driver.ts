@@ -36,12 +36,21 @@ const inspectConnection = (client: RedisClient): Promise<void> =>
 const redisGetLasts = (client: RedisClient): KeyValueStorageTypes.GetLasts =>
   (keys: string[]) =>
     new Promise((resolve, reject) => {
+      const resp: {[key: string]: any} = {};
       const c = client.multi();
       keys.map((k) => c.lrange(k, 0, 0));
       c.exec((err, replies) => {
         if (err) return reject(err);
-        console.log(replies);
-        resolve({});
+
+        let idx = 0;
+        replies.map((elem) => {
+          const key = keys[idx];
+          let value = null;
+          if (elem.length > 0) value = JSON.parse(elem[0]);
+          resp[key] = value;
+          idx++;
+        });
+        resolve(resp);
       });
     });
 

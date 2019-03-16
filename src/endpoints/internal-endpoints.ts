@@ -97,8 +97,9 @@ injectable(EndpointModules.Internal.LastMessages,
         let arr = req.query['room_tokens'];
         const roomTokens: string[] = [];
 
+        if (!arr) throw new InvalidParamError('room_token required');
         if (isArray(arr)) arr.map((t) => roomTokens.push(t));
-        else arr.push(arr);
+        else roomTokens.push(arr);
 
         if (roomTokens.length === 0) {
           throw new InvalidParamError('at least one room_token required');
