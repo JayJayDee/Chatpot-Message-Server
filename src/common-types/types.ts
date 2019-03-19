@@ -40,7 +40,7 @@ export enum MessageType {
 export type MessageBodyPayload = {
   message_id: string;
   type: MessageType;
-  from: Member;
+  from?: Member;
   to: Reception;
   content: any;
   sent_time: number;

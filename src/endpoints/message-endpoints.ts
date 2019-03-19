@@ -6,7 +6,6 @@ import { InvalidParamError, BaseLogicError } from '../errors';
 import { ExtApiModules, ExtApiTypes } from '../extapis';
 import { toMessageType, ReceptionType, MessageBodyPayload, MessageType } from '../common-types';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
-import { createHash } from 'crypto';
 import { QueueTypes, QueueModules } from '../queues';
 import { ConfigModules, ConfigTypes } from '../configs';
 
@@ -30,7 +29,8 @@ injectable(EndpointModules.Message.Publish,
     ExtApiModules.Room.RequestRooms,
     MessageStoreModules.StoreMessage,
     QueueModules.Publish,
-    ConfigModules.TopicConfig ],
+    ConfigModules.TopicConfig,
+    UtilModules.Message.CreateMessageId ],
   async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
     decMemberToken: UtilTypes.Auth.DecryptMemberToken,
     wrapAsync: EndpointTypes.Utils.WrapAsync,
@@ -38,7 +38,8 @@ injectable(EndpointModules.Message.Publish,
     reqRooms: ExtApiTypes.Room.RequestRooms,
     storeMessage: MessageStoreTypes.StoreMessage,
     publishToQueue: QueueTypes.Publish,
-    topicCfg: ConfigTypes.TopicConfig): Promise<EndpointTypes.Endpoint> =>
+    topicCfg: ConfigTypes.TopicConfig,
+    messageId: UtilTypes.Message.CreateMessageId): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/room/:room_token/publish',
@@ -72,7 +73,7 @@ injectable(EndpointModules.Message.Publish,
           if (rooms.length === 0) throw new RoomNotFoundError(`room not found: ${roomToken}`);
 
           const body = {
-            message_id: generateMessageId(roomToken, memberToken),
+            message_id: messageId(roomToken, memberToken),
             type: msgType,
             from: members[0],
             to: {
@@ -143,13 +144,6 @@ injectable(EndpointModules.Message.Messages,
         })
       ]
     }));
-
-
-const generateMessageId = (roomToken: string, memberToken: string): string =>
-  createHash('sha256')
-    .update(`${roomToken}${memberToken}${process.hrtime()[1]}`)
-    .digest('hex');
-
 
 const getSubtitle = (body: MessageBodyPayload): string => {
   if (body.type === MessageType.TEXT) return body.content as string;

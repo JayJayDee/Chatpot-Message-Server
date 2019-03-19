@@ -6,4 +6,8 @@ export namespace UtilModules {
     DecryptRoomToken = 'Util/Auth/DecryptRoomToken',
     ValidateSessionKey = 'Util/Auth/ValidateSessionkey'
   }
+
+  export enum Message {
+    CreateMessageId = 'Util/Message/CreateMessageId'
+  }
 }

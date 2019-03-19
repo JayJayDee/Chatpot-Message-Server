@@ -8,6 +8,7 @@ import { InvalidParamError } from '../errors';
 import { QueueModules, QueueTypes } from '../queues';
 import { ConfigModules, ConfigTypes } from '../configs';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
+import { ReceptionType } from '../common-types';
 
 injectable(EndpointModules.Internal.EnterRoom,
   [ EndpointModules.Utils.WrapAync,
@@ -113,14 +114,37 @@ injectable(EndpointModules.Internal.LastMessages,
 
 
 injectable(EndpointModules.Internal.PublishNotification,
-  [ EndpointModules.Utils.WrapAync ],
-  async (wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> =>
+  [ EndpointModules.Utils.WrapAync,
+    UtilModules.Message.CreateMessageId ],
+  async (wrapAsync: EndpointTypes.Utils.WrapAsync,
+    createMessageId: UtilTypes.Message.CreateMessageId): Promise<EndpointTypes.Endpoint> =>
 
 ({
   uri: '/internal/room/:room_token/publish',
   method: EndpointTypes.EndpointMethod.POST,
   handler: [
     wrapAsync(async (req, res, next) => {
+      const roomToken = req.params['room_token'];
+      let content = req.body['content'];
+
+      if (!roomToken) throw new InvalidParamError('room_token required');
+      if (!content) throw new InvalidParamError('content required');
+
+      try {
+        content = JSON.parse(content);
+      } catch (err) {
+        throw new InvalidParamError('content must be json');
+      }
+
+      const to = {
+        type: ReceptionType.ROOM,
+        token: roomToken
+      };
+      const body = {
+        to
+      };
+      console.log(body);
+
       res.status(200).json({});
     })
   ]
