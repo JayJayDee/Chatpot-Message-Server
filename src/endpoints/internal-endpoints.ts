@@ -8,7 +8,7 @@ import { InvalidParamError } from '../errors';
 import { QueueModules, QueueTypes } from '../queues';
 import { ConfigModules, ConfigTypes } from '../configs';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
-import { ReceptionType } from '../common-types';
+import { ReceptionType, MessageType, MessageBodyPayload } from '../common-types';
 
 injectable(EndpointModules.Internal.EnterRoom,
   [ EndpointModules.Utils.WrapAync,
@@ -115,9 +115,15 @@ injectable(EndpointModules.Internal.LastMessages,
 
 injectable(EndpointModules.Internal.PublishNotification,
   [ EndpointModules.Utils.WrapAync,
-    UtilModules.Message.CreateMessageId ],
+    UtilModules.Message.CreateMessageId,
+    MessageStoreModules.StoreMessage,
+    QueueModules.Publish,
+    ConfigModules.TopicConfig ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync,
-    createMessageId: UtilTypes.Message.CreateMessageId): Promise<EndpointTypes.Endpoint> =>
+    createMessageId: UtilTypes.Message.CreateMessageId,
+    storeMessage: MessageStoreTypes.StoreMessage,
+    publishToQueue: QueueTypes.Publish,
+    topicCfg: ConfigTypes.TopicConfig): Promise<EndpointTypes.Endpoint> =>
 
 ({
   uri: '/internal/room/:room_token/publish',
@@ -125,8 +131,12 @@ injectable(EndpointModules.Internal.PublishNotification,
   handler: [
     wrapAsync(async (req, res, next) => {
       const roomToken = req.params['room_token'];
+      const title = req.body['title'];
+      const subtitle = req.body['subtitle'];
       let content = req.body['content'];
 
+      if (!subtitle) throw new InvalidParamError('subtitle required');
+      if (!title) throw new InvalidParamError('title required');
       if (!roomToken) throw new InvalidParamError('room_token required');
       if (!content) throw new InvalidParamError('content required');
 
@@ -136,16 +146,37 @@ injectable(EndpointModules.Internal.PublishNotification,
         throw new InvalidParamError('content must be json');
       }
 
+      const messageId = createMessageId(roomToken);
+
       const to = {
         type: ReceptionType.ROOM,
         token: roomToken
       };
-      const body = {
-        to
+      const body: MessageBodyPayload = {
+        to,
+        content,
+        from: null,
+        type: MessageType.NOTIFICATION,
+        sent_time: Date.now(),
+        message_id: messageId
       };
-      console.log(body);
+      const pushMessage = {
+        title,
+        subtitle,
+        body,
+        topic: roomToken
+      };
 
-      res.status(200).json({});
+      // non-awaiting async functions. -> for the performance.
+      storeMessage(roomToken, body);
+      publishToQueue(topicCfg.messageExchange,
+        Buffer.from(JSON.stringify(pushMessage)),
+        QueueTypes.QueueType.EXCHANGE);
+      //////
+
+      res.status(200).json({
+        message_id: messageId
+      });
     })
   ]
 }));
