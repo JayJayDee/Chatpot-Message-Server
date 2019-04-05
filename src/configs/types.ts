@@ -16,6 +16,7 @@ export namespace ConfigTypes {
     sessionExpires: number;
     authSecret: string;
     roomSecret: string;
+    messageSecret: string;
   };
   export type KeyValueStorageConfig = {
     provider: CacheProvider;
