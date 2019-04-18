@@ -18,7 +18,9 @@ injectable(UtilModules.Message.CreateMessageId,
     (roomToken, memberToken) => {
       const cp = cipher(cfg.messageSecret);
       const roomNo = decryptRoom(roomToken).room_no;
-      const memberNo = decryptMember(memberToken).member_no;
+      let memberNo: number = 0;
+      if (memberToken) memberNo = decryptMember(memberToken).member_no;
+
       const buffers = [
         cp.update(`${roomNo}&${memberNo}&${process.hrtime()[1]}`),
         cp.final()
