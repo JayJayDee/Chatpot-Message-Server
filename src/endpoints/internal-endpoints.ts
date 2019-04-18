@@ -126,7 +126,7 @@ injectable(EndpointModules.Internal.PublishNotification,
     topicCfg: ConfigTypes.TopicConfig): Promise<EndpointTypes.Endpoint> =>
 
 ({
-  uri: '/internal/room/:room_token/publish',
+  uri: '/internal/room/:room_token/notification',
   method: EndpointTypes.EndpointMethod.POST,
   handler: [
     wrapAsync(async (req, res, next) => {
