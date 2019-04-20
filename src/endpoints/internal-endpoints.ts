@@ -132,11 +132,13 @@ injectable(EndpointModules.Internal.PublishNotification,
     wrapAsync(async (req, res, next) => {
       const roomToken = req.params['room_token'];
       const title = req.body['title'];
+      const titleKey = req.body['title_key'];
       const subtitle = req.body['subtitle'];
+      const subtitleKey = req.body['subtitle_key'];
       let content = req.body['content'];
 
-      if (!subtitle) throw new InvalidParamError('subtitle required');
-      if (!title) throw new InvalidParamError('title required');
+      if (!subtitle && !subtitleKey) throw new InvalidParamError('subtitle or subtitle_key required');
+      if (!title && !titleKey) throw new InvalidParamError('title or title_key required');
       if (!roomToken) throw new InvalidParamError('room_token required');
       if (!content) throw new InvalidParamError('content required');
 
@@ -161,8 +163,10 @@ injectable(EndpointModules.Internal.PublishNotification,
         message_id: messageId
       };
       const pushMessage = {
-        title,
-        subtitle,
+        title: title ? title : null,
+        subtitle: subtitle ? subtitle : null,
+        title_key: titleKey ? titleKey : null,
+        subtitle_key: subtitleKey ? subtitleKey : null,
         body,
         topic: roomToken
       };
