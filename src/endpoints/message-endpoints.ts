@@ -86,8 +86,10 @@ injectable(EndpointModules.Message.Publish,
 
           const pushMessage = {
             topic: roomToken,
-            title: `Messages from ${rooms[0].title}`,
+            // title: `Messages from ${rooms[0].title}`,
+            title_key: 'MESSAGE_ARRIVAL',
             subtitle: getSubtitle(body),
+            // subtitle_key: ' ',
             body
           };
 
