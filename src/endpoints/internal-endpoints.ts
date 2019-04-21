@@ -9,6 +9,7 @@ import { QueueModules, QueueTypes } from '../queues';
 import { ConfigModules, ConfigTypes } from '../configs';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 import { ReceptionType, MessageType, MessageBodyPayload } from '../common-types';
+import { LoggerModules, LoggerTypes } from '../loggers';
 
 injectable(EndpointModules.Internal.EnterRoom,
   [ EndpointModules.Utils.WrapAync,
@@ -118,12 +119,14 @@ injectable(EndpointModules.Internal.PublishNotification,
     UtilModules.Message.CreateMessageId,
     MessageStoreModules.StoreMessage,
     QueueModules.Publish,
-    ConfigModules.TopicConfig ],
+    ConfigModules.TopicConfig,
+    LoggerModules.Logger ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync,
     createMessageId: UtilTypes.Message.CreateMessageId,
     storeMessage: MessageStoreTypes.StoreMessage,
     publishToQueue: QueueTypes.Publish,
-    topicCfg: ConfigTypes.TopicConfig): Promise<EndpointTypes.Endpoint> =>
+    topicCfg: ConfigTypes.TopicConfig,
+    log: LoggerTypes.Logger): Promise<EndpointTypes.Endpoint> =>
 
 ({
   uri: '/internal/room/:room_token/notification',
@@ -170,6 +173,9 @@ injectable(EndpointModules.Internal.PublishNotification,
         body,
         topic: roomToken
       };
+
+      log.debug('[internal-endpoint] rabbitmq payload');
+      log.debug(pushMessage);
 
       // non-awaiting async functions. -> for the performance.
       storeMessage(roomToken, body);
