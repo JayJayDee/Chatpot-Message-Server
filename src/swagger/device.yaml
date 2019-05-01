@@ -1,11 +1,11 @@
 ---
 tags:
   name: Device
-  description: Push Device관련 APIs
+  description: Push Device 관련 APIs (Android, iOS 앱만 해당)
 
 /device/register:
   post:
-    summary: 내 DeviceToken 등록
+    summary: 내 DeviceToken 등록 (Android, iOS 앱만 해당)
     tags: [Device]
     parameters:
       - name: member_token
@@ -13,6 +13,12 @@ tags:
         required: true
         type: string
         description: 회원 token
+      - name: device_type
+        in: formData
+        required: true
+        type: string
+        enum: [ANDROID, IOS]
+        description: device 종류. 
       - name: device_token
         in: formData
         required: true
@@ -27,7 +33,7 @@ tags:
 
 /device/unregister:
   post:
-    summary: 내 DeviceToken 등록 해제
+    summary: 내 DeviceToken 등록 해제 (Android, iOS 앱만 해당)
     tags: [Device]
     parameters:
       - name: member_token
