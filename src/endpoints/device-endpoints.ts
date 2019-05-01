@@ -20,15 +20,25 @@ injectable(EndpointModules.Device.Register,
         wrapAsync(async (req, res, next) => {
           const memberToken = req.body['member_token'];
           const deviceToken = req.body['device_token'];
+          let deviceType = req.body['device_type'];
 
           if (!memberToken || !deviceToken) {
             throw new InvalidParamError('room_token, device_token required');
           }
 
+          if (!deviceType) {
+            // TODO: must be removed after app updated.
+            deviceType = 'IOS';
+          } else {
+            if (deviceType !== 'ANDROID' && deviceType !== 'IOS') {
+              throw new InvalidParamError('device_type must be ANDROID or IOS');
+            }
+          }
+
           const member = decMember(memberToken);
           if (!member) throw new InvalidParamError('invalid member_token');
 
-          await register({ deviceToken, memberNo: member.member_no });
+          await register({ deviceToken, deviceType, memberNo: member.member_no });
           res.status(200).json({});
         })
       ]
