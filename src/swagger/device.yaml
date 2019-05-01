@@ -1,0 +1,48 @@
+---
+tags:
+  name: Device
+  description: Push Device관련 APIs
+
+/device/register:
+  post:
+    summary: 내 DeviceToken 등록
+    tags: [Device]
+    parameters:
+      - name: member_token
+        in: formData
+        required: true
+        type: string
+        description: 회원 token
+      - name: device_token
+        in: formData
+        required: true
+        type: string
+        description: Android, iOS의 경우는 FCM registration token,<br />Web의 경우는 Websocket ID
+    responses:
+      200:
+        description: 성공
+        type: object
+        schema:
+          $ref: '#/definitions/Ok'
+
+/device/unregister:
+  post:
+    summary: 내 DeviceToken 등록 해제
+    tags: [Device]
+    parameters:
+      - name: member_token
+        in: formData
+        required: true
+        type: string
+        description: 회원 token
+      - name: device_token
+        in: formData
+        required: true
+        type: string
+        description: Android, iOS의 경우는 FCM registration token,<br />Web의 경우는 Websocket ID
+    responses:
+      200:
+        description: 성공
+        type: object
+        schema:
+          $ref: '#/definitions/Ok'

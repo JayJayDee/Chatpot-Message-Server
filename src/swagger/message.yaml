@@ -1,0 +1,77 @@
+---
+tags:
+  name: Message
+  description: 메시지 관련 APIs
+
+/room/{room_token}/publish:
+  post:
+    summary: 채팅방에 메시지 전송
+    tags: [Message]
+    parameters:
+      - name: room_token
+        in: path
+        required: true
+        type: string
+        description: 채팅방 token
+      - name: type
+        in: formData
+        required: true
+        type: string
+        enum: [TEXT, IMAGE]
+        description: 메시지 종류. TEXT=단순 텍스트, IMAGE=사진
+      - name: member_token
+        in: formData
+        required: true
+        type: string
+        description: 회원 token
+      - name: content
+        in: formData
+        type: string
+        required: true
+        description: '메시지 컨텐츠.<br><b>type이 TEXT인 경우 = </b>단순 텍스트<br><b>type이 IMAGE인 경우, JSON = </b>{ "image_url": "", "thumb_url": "" }'
+    responses:
+      200:
+        description: 성공
+        type: object
+        properties:
+          message_id:
+            type: string
+            description: 생성되고 전송된 메시지 고유ID. 이것을 이용하여 메시지 도착 여부를 확인한다.
+
+/room/{room_token}/messages:
+  get:
+    summary: 채팅방 내의 메시지들을 반환
+    tags: [Message]
+    parameters:
+      - name: room_token
+        in: path
+        required: true
+        type: string
+        description: 채팅방 token
+      - name: offset
+        required: false
+        type: number
+        description: 메시지 가져올 시작위치. (optional, 기본 0)
+      - name: size
+        required: false
+        type: number
+        description: 메시지 가져올 갯수 (optional, 기본 10개)
+    responses:
+      200:
+        description: 성공
+        type: object
+        properties:
+          messages:
+            type: array
+            description: 메시지들
+            items:
+              $ref: '#/definitions/Message'
+          all:
+            type: number
+            description: 채팅방내 메시지 전체 갯수
+          offset:
+            type: number
+            description: 현재 메시지 가져온 시작위치
+          size:
+            type: number
+            descriptoin: 메시지 가져온 갯수
