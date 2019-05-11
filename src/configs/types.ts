@@ -43,6 +43,7 @@ export namespace ConfigTypes {
   export type TopicConfig = {
     deviceQueue: string;
     messageExchange: string;
+    websocketJoinsQueue: string;
   };
   export type MysqlConfig = {
     host: string;

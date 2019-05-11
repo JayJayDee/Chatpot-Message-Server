@@ -42,6 +42,13 @@ injectable(EndpointModules.Internal.EnterRoom,
             topic: roomToken
           })));
 
+        publish(topicCfg.websocketJoinsQueue,
+          Buffer.from(JSON.stringify({
+            type: 'SUBSCRIBE',
+            member_token: memberToken,
+            topic: roomToken
+          })));
+
         res.status(200).json({});
       })
     ]
@@ -76,6 +83,13 @@ injectable(EndpointModules.Internal.LeaveRoom,
           Buffer.from(JSON.stringify({
             type: 'UNSUBSCRIBE',
             device_tokens: deviceTokens,
+            topic: roomToken
+          })));
+
+        publish(topicCfg.websocketJoinsQueue,
+          Buffer.from(JSON.stringify({
+            type: 'UNSUBSCRIBE',
+            member_token: memberToken,
             topic: roomToken
           })));
 

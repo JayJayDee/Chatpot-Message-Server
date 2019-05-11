@@ -31,6 +31,7 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
   },
   topic: {
     deviceQueue: null,
+    websocketJoinsQueue: null,
     messageExchange: null
   },
   mysql: {
@@ -63,6 +64,7 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'AMQP_LOGIN', path: ['amqp', 'login'] },
     { key: 'AMQP_PASSWORD', path: ['amqp', 'password'] },
     { key: 'TOPIC_DEVICE_QUEUE', path: ['topic', 'deviceQueue'] },
+    { key: 'TOPIC_WEBSOCKET_JOINS_QUEUE', path: ['topic', 'websocketJoinsQueue'] },
     { key: 'TOPIC_MESSAGE_EXCHANGE', path: ['topic', 'messageExchange'] },
     { key: 'MYSQL_HOST', path: ['mysql', 'host'] },
     { key: 'MYSQL_PORT', path: ['mysql', 'port'] },
