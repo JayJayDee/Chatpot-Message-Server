@@ -207,15 +207,27 @@ injectable(EndpointModules.Internal.PublishNotification,
 
 
 injectable(EndpointModules.Internal.GetMessages,
-  [ EndpointModules.Utils.WrapAync ],
-  async (wrapAsync: EndpointTypes.Utils.WrapAsync): Promise<EndpointTypes.Endpoint> =>
+  [ EndpointModules.Utils.WrapAync,
+    UtilModules.Auth.DecryptRoomToken,
+    MessageStoreModules.GetMessages ],
+  async (wrapAsync: EndpointTypes.Utils.WrapAsync,
+    decryptRoomToken: UtilTypes.Auth.DecryptRoomToken,
+    getMessagesFromStore: MessageStoreTypes.GetMessages): Promise<EndpointTypes.Endpoint> =>
 
   ({
-    uri: '/internal/room/:room_no/messages',
+    uri: '/internal/room/:room_token/messages',
     method: EndpointTypes.EndpointMethod.GET,
     handler: [
       wrapAsync(async (req, res, next) => {
-        res.status(200).json({});
+        const roomToken = req.params['room_token'];
+
+        if (!roomToken) throw new InvalidParamError('room_token required');
+
+        const room = decryptRoomToken(roomToken);
+        if (room === null) throw new InvalidParamError('invalid room_token');
+
+        const messages = await getMessagesFromStore(roomToken, 0, 100);
+        res.status(200).json(messages);
       })
     ]
   }));
