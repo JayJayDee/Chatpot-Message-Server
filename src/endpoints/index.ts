@@ -13,8 +13,10 @@ injectable(EndpointModules.Endpoints,
     EndpointModules.Internal.EnterRoom,
     EndpointModules.Internal.LeaveRoom,
     EndpointModules.Internal.LastMessages,
-    EndpointModules.Internal.PublishNotification ],
-  async (regDevice, unregDevice, publish, msgs, enter, leave, lastMsgs, publishNoti) =>
+    EndpointModules.Internal.PublishNotification,
+    EndpointModules.Internal.GetMessages ],
+  async (regDevice, unregDevice, publish,
+    msgs, enter, leave, lastMsgs, publishNoti, intGetMsgs) =>
     ([
       regDevice,
       unregDevice,
@@ -23,5 +25,6 @@ injectable(EndpointModules.Endpoints,
       enter,
       leave,
       lastMsgs,
-      publishNoti
+      publishNoti,
+      intGetMsgs
     ]));

@@ -19,6 +19,7 @@ export namespace EndpointModules {
     EnterRoom = 'Endpoint/Internal/Enter',
     LeaveRoom = 'Endpoint/Internal/Leave',
     LastMessages = 'Endpoint/Internal/LastMessages',
-    PublishNotification = 'Endpoint/Internal/PublishNotification'
+    PublishNotification = 'Endpoint/Internal/PublishNotification',
+    GetMessages = 'Endpoint/Internal/GetMessages'
   }
 }
