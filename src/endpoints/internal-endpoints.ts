@@ -11,6 +11,37 @@ import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 import { ReceptionType, MessageType, MessageBodyPayload } from '../common-types';
 import { LoggerModules, LoggerTypes } from '../loggers';
 
+
+injectable(EndpointModules.Internal.EnterRooms,
+  [ EndpointModules.Utils.WrapAync ],
+  async(wrapAsync: EndpointTypes.Utils.WrapAsync) =>
+
+  ({
+    uri: '/internal/rooms/enter',
+    method: EndpointTypes.EndpointMethod.POST,
+    handler: [
+      wrapAsync(async (req, res, next) => {
+        res.status(200).json({});
+      })
+    ]
+  }));
+
+
+injectable(EndpointModules.Internal.LeaveRooms,
+  [ EndpointModules.Utils.WrapAync ],
+  async(wrapAsync: EndpointTypes.Utils.WrapAsync) =>
+
+  ({
+    uri: '/internal/rooms/leave',
+    method: EndpointTypes.EndpointMethod.POST,
+    handler: [
+      wrapAsync(async (req, res, next) => {
+        res.status(200).json({});
+      })
+    ]
+  }));
+
+
 injectable(EndpointModules.Internal.EnterRoom,
   [ EndpointModules.Utils.WrapAync,
     DeviceStoreModules.GetDeviceTokens,
