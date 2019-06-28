@@ -22,3 +22,19 @@ injectable(ExtApiModules.Room.RequestRooms,
       }));
       return rooms;
     });
+
+
+injectable(ExtApiModules.Room.RequestMyRooms,
+  [ ExtApiModules.Requestor,
+    ConfigModules.ExternalApiConfig ],
+  async (request: ExtApiTypes.Request,
+    cfg: ConfigTypes.ExternalApiConfig): Promise<ExtApiTypes.Room.RequestMyRooms> =>
+
+    async (memberToken) => {
+      const uri = `${cfg.roomBaseUri}/internal/${memberToken}/my`;
+      const resp = await request({
+        uri,
+        method: ExtApiTypes.RequestMethod.GET
+      });
+      return resp;
+    });
