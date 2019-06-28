@@ -4,14 +4,23 @@ import { EndpointTypes } from './types';
 import { InvalidParamError } from '../errors';
 import { UtilModules, UtilTypes } from '../utils';
 import { DeviceStoreModules, DeviceStoreTypes } from '../device-stores';
+import { ConfigTypes, ConfigModules } from '../configs';
+import { QueueModules, QueueTypes } from '../queues';
+import { ExtApiModules, ExtApiTypes } from '../extapis';
 
 injectable(EndpointModules.Device.Register,
   [ EndpointModules.Utils.WrapAync,
     UtilModules.Auth.DecryptMemberToken,
-      DeviceStoreModules.Register ],
+    DeviceStoreModules.Register,
+    ConfigModules.TopicConfig,
+    QueueModules.Publish,
+    ExtApiModules.Room.RequestMyRooms ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync,
     decMember: UtilTypes.Auth.DecryptMemberToken,
-    register: DeviceStoreTypes.Register): Promise<EndpointTypes.Endpoint> =>
+    register: DeviceStoreTypes.Register,
+    topicCfg: ConfigTypes.TopicConfig,
+    publish: QueueTypes.Publish,
+    myRoomTokens: ExtApiTypes.Room.RequestMyRooms): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/device/register',
@@ -38,6 +47,23 @@ injectable(EndpointModules.Device.Register,
           const member = decMember(memberToken);
           if (!member) throw new InvalidParamError('invalid member_token');
 
+          // get current room tokens & subscribe them
+          const roomTokens = await myRoomTokens(memberToken);
+          roomTokens.forEach((roomToken) => {
+            publish(topicCfg.deviceQueue,
+              Buffer.from(JSON.stringify({
+                type: 'SUBSCRIBE',
+                device_tokens: [ deviceToken ],
+                topic: roomToken
+              })));
+            publish(topicCfg.websocketJoinsQueue,
+              Buffer.from(JSON.stringify({
+                type: 'SUBSCRIBE',
+                member_token: memberToken,
+                topic: roomToken
+              })));
+          });
+
           await register({ deviceToken, deviceType, memberNo: member.member_no });
           res.status(200).json({});
         })
@@ -48,10 +74,16 @@ injectable(EndpointModules.Device.Register,
   injectable(EndpointModules.Device.Unregister,
     [ EndpointModules.Utils.WrapAync,
       UtilModules.Auth.DecryptMemberToken,
-      DeviceStoreModules.Unregister ],
+      DeviceStoreModules.Unregister,
+      ConfigModules.TopicConfig,
+      QueueModules.Publish,
+      ExtApiModules.Room.RequestMyRooms ],
     async (wrapAsync: EndpointTypes.Utils.WrapAsync,
       decMember: UtilTypes.Auth.DecryptMemberToken,
-      unregister: DeviceStoreTypes.Unregister): Promise<EndpointTypes.Endpoint> =>
+      unregister: DeviceStoreTypes.Unregister,
+      topicCfg: ConfigTypes.TopicConfig,
+      publish: QueueTypes.Publish,
+      myRoomTokens: ExtApiTypes.Room.RequestMyRooms): Promise<EndpointTypes.Endpoint> =>
 
       ({
         uri: '/device/unregister',
@@ -67,6 +99,23 @@ injectable(EndpointModules.Device.Register,
 
             const member = decMember(memberToken);
             if (!member) throw new InvalidParamError('invalid member_token');
+
+            // get current room tokens & unsubscribe them
+            const roomTokens = await myRoomTokens(memberToken);
+            roomTokens.forEach((roomToken) => {
+              publish(topicCfg.deviceQueue,
+                Buffer.from(JSON.stringify({
+                  type: 'UNSUBSCRIBE',
+                  device_tokens: [ deviceToken ],
+                  topic: roomToken
+                })));
+              publish(topicCfg.websocketJoinsQueue,
+                Buffer.from(JSON.stringify({
+                  type: 'UNSUBSCRIBE',
+                  member_token: memberToken,
+                  topic: roomToken
+                })));
+            });
 
             await unregister({ deviceToken, memberNo: member.member_no });
             res.status(200).json({});

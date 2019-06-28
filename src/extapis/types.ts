@@ -18,6 +18,6 @@ export namespace ExtApiTypes {
   }
   export namespace Room {
     export type RequestRooms = (roomNos: number[]) => Promise<Room[]>;
-    export type RequestMyRooms = (memberToken: string) => Promise<Room[]>;
+    export type RequestMyRooms = (memberToken: string) => Promise<string[]>;
   }
 }
