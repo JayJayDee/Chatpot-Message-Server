@@ -22,9 +22,7 @@ export const toAvatar = (elem: any): Avatar => ({
 });
 
 export const toMessageType = (elem: string): MessageType => {
-  if (elem === 'NOTIFICATION' ||
-      elem === 'TEXT' ||
-      elem === 'IMAGE') {
+  if (elem === 'TEXT' || elem === 'IMAGE') {
     return <MessageType>elem;
   }
   return null;

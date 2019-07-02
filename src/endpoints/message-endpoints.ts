@@ -60,11 +60,15 @@ injectable(EndpointModules.Message.Publish,
           if (!room) throw new InvalidParamError('invalid room token');
 
           const msgType = toMessageType(type);
-          if (!msgType) throw new InvalidParamError('invalid message type');
+          if (!msgType) throw new InvalidParamError('invalid message type. message type must be IMAGE or TEXT');
 
-          try {
-            content = JSON.parse(content);
-          } catch (err) {}
+          if (msgType === MessageType.IMAGE) {
+            try {
+              content = JSON.parse(content);
+            } catch (err) {
+              throw new InvalidParamError('invalid image content format');
+            }
+          }
 
           const members = await reqMembers([ member.member_no ]);
           if (members.length === 0) throw new MemberNotFoundError(`member not found: ${memberToken}`);
