@@ -29,6 +29,12 @@ tags:
         type: string
         required: true
         description: '메시지 컨텐츠.<br><b>type이 TEXT인 경우 = </b>단순 텍스트<br><b>type이 IMAGE인 경우, JSON = </b>{ "image_url": "", "thumb_url": "" }'
+      - name: platform
+        in: formData
+        type: string
+        enum: [IOS, ANDROID, WEB]
+        required: true
+        description: 메시지를 전송하는 디바이스 종류. IOS | ANDROID | WEB
     responses:
       200:
         description: 성공
