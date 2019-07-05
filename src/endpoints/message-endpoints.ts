@@ -8,6 +8,7 @@ import { toMessageType, ReceptionType, MessageBodyPayload, MessageType } from '.
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 import { QueueTypes, QueueModules } from '../queues';
 import { ConfigModules, ConfigTypes } from '../configs';
+import { LoggerModules, LoggerTypes } from '../loggers';
 
 class MemberNotFoundError extends BaseLogicError {
   constructor(payload: any) {
@@ -21,8 +22,11 @@ class RoomNotFoundError extends BaseLogicError {
   }
 }
 
+const tag = '[publish-endpoint]';
+
 injectable(EndpointModules.Message.Publish,
-  [ UtilModules.Auth.DecryptRoomToken,
+  [ LoggerModules.Logger,
+    UtilModules.Auth.DecryptRoomToken,
     UtilModules.Auth.DecryptMemberToken,
     EndpointModules.Utils.WrapAync,
     ExtApiModules.Auth.RequestMembers,
@@ -31,7 +35,8 @@ injectable(EndpointModules.Message.Publish,
     QueueModules.Publish,
     ConfigModules.TopicConfig,
     UtilModules.Message.CreateMessageId ],
-  async (decRoomToken: UtilTypes.Auth.DecryptRoomToken,
+  async (log: LoggerTypes.Logger,
+    decRoomToken: UtilTypes.Auth.DecryptRoomToken,
     decMemberToken: UtilTypes.Auth.DecryptMemberToken,
     wrapAsync: EndpointTypes.Utils.WrapAsync,
     reqMembers: ExtApiTypes.Auth.RequestMembers,
@@ -49,7 +54,10 @@ injectable(EndpointModules.Message.Publish,
           const type = req.body['type'];
           const roomToken = req.params['room_token'];
           const memberToken = req.body['member_token'];
+          const platform = req.body['platform'];
           let content = req.body['content'];
+
+          log.debug(`${tag} platform value was: ${platform}`);
 
           if (!type || !memberToken || !roomToken || !content) {
             throw new InvalidParamError('type, member_token, room_token, content required');
@@ -85,6 +93,7 @@ injectable(EndpointModules.Message.Publish,
               token: roomToken
             },
             content,
+            platform,
             sent_time: Date.now()
           };
 
@@ -97,12 +106,12 @@ injectable(EndpointModules.Message.Publish,
             body
           };
 
-          // non-awaiting async functions. -> for the performance.
-          storeMessage(roomToken, body);
+          await storeMessage(roomToken, body);
+
+          // non-awaiting async function -> for the performance.
           publishToQueue(topicCfg.messageExchange,
             Buffer.from(JSON.stringify(pushMessage)),
             QueueTypes.QueueType.EXCHANGE);
-          //////
 
           res.status(200).json({
             message_id: body.message_id
