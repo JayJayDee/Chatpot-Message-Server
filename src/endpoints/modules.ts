@@ -22,6 +22,7 @@ export namespace EndpointModules {
     LeaveRoom = 'Endpoint/Internal/LeaveRoom',
     LastMessages = 'Endpoint/Internal/LastMessages',
     PublishNotification = 'Endpoint/Internal/PublishNotification',
-    GetMessages = 'Endpoint/Internal/GetMessages'
+    GetMessages = 'Endpoint/Internal/GetMessages',
+    PublishPeerMessage = 'Endpoint/Internal/PublishPeerMessage'
   }
 }

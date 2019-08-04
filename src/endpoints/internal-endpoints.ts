@@ -64,7 +64,7 @@ injectable(EndpointModules.Internal.EnterRoom,
 
         if (!memberToken || !roomToken) throw new InvalidParamError('member_token, room_token required');
         const member = decMember(memberToken);
-        const deviceTokens = await getTokens(member.member_no);
+        const deviceTokens = await getTokens([ member.member_no ]);
 
         publish(topicCfg.deviceQueue,
           Buffer.from(JSON.stringify({
@@ -108,7 +108,7 @@ injectable(EndpointModules.Internal.LeaveRoom,
 
         if (!memberToken || !roomToken) throw new InvalidParamError('member_token, room_token required');
         const member = decMember(memberToken);
-        const deviceTokens = await getTokens(member.member_no);
+        const deviceTokens = await getTokens([ member.member_no ]);
 
         publish(topicCfg.deviceQueue,
           Buffer.from(JSON.stringify({
@@ -262,3 +262,36 @@ injectable(EndpointModules.Internal.GetMessages,
       })
     ]
   }));
+
+
+injectable(EndpointModules.Internal.PublishPeerMessage,
+  [ EndpointModules.Utils.WrapAync,
+    DeviceStoreModules.GetDeviceTokens ],
+  async (wrapAsync: EndpointTypes.Utils.WrapAsync,
+    getDeviceTokens: DeviceStoreTypes.GetDeviceTokens): Promise<EndpointTypes.Endpoint> =>
+
+    ({
+      uri: '/internal/peers/publish',
+      method: EndpointTypes.EndpointMethod.POST,
+      handler: [
+        wrapAsync(async (req, res, next) => {
+          const type = req.body['type'];
+          const memberNos: any[] = req.query['member_nos'];
+
+          if (!memberNos || !type) {
+            throw new InvalidParamError('member_nos or type required');
+          }
+          if (isArray(memberNos) === false) {
+            throw new InvalidParamError('member_nos must be array');
+          }
+          if (!(type === 'ROULETTE_MATCHED')) {
+            throw new InvalidParamError('invalid type');
+          }
+
+          const deviceTokens = await getDeviceTokens(memberNos);
+          console.log(deviceTokens);
+
+          res.status(200).json({});
+        })
+      ]
+    }));

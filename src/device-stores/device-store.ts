@@ -40,15 +40,16 @@ injectable(DeviceStoreModules.Unregister,
 injectable(DeviceStoreModules.GetDeviceTokens,
   [ MysqlModules.Mysql ],
   async (mysql: MysqlTypes.MysqlDriver): Promise<DeviceStoreTypes.GetDeviceTokens> =>
-    async (memberNo) => {
+    async (memberNos) => {
+      const inClause = memberNos.map((m) => '?').join(',');
       const sql = `
         SELECT
           device_token
         FROM
           chatpot_device
         WHERE
-          member_no=?
+          member_no IN (${inClause})
       `;
-      const resp: any[] = await mysql.query(sql, [ memberNo ]) as any[];
+      const resp: any[] = await mysql.query(sql, memberNos) as any[];
       return resp.map((r) => r.device_token);
     });

@@ -52,3 +52,19 @@ export type PushMessage = {
   topic: string;
   body: MessageBodyPayload;
 };
+
+export enum NotifyType {
+  ROULETTE_MATCHED = 'ROULETTE_MATCHED'
+}
+
+export type NotifyBodyPayload = {
+  type: NotifyType,
+  from?: Member;
+};
+
+export type PeerPushMessage = {
+  title: string;
+  subtitle: string;
+  to_device_tokens: string[];
+  body: NotifyBodyPayload;
+};
