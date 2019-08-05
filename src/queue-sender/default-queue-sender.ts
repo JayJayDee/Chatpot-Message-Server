@@ -11,7 +11,6 @@ injectable(QueueSenderModules.SendQueueForMembers,
     getDeviceTokens: DeviceStoreTypes.GetDeviceTokens): Promise<QueueSenderTypes.SendQueueForMembers> =>
 
     async (param) => {
-
     });
 
 
@@ -20,5 +19,8 @@ injectable(QueueSenderModules.SendQueueForTopic,
   async (publish: QueueTypes.Publish): Promise<QueueSenderTypes.SendQueueForTopic> =>
 
     async (param) => {
-
+      let topicType: QueueTypes.QueueType;
+      if (param.topic_type === 'EXCHANGE') topicType = QueueTypes.QueueType.EXCHANGE;
+      else topicType = QueueTypes.QueueType.QUEUE;
+      await publish(param.topic, Buffer.from(JSON.stringify(param)), topicType);
     });
