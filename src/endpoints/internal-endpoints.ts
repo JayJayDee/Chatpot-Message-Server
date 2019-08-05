@@ -266,32 +266,72 @@ injectable(EndpointModules.Internal.GetMessages,
 
 injectable(EndpointModules.Internal.PublishPeerMessage,
   [ EndpointModules.Utils.WrapAync,
-    DeviceStoreModules.GetDeviceTokens ],
+    DeviceStoreModules.GetDeviceTokens,
+    QueueModules.Publish,
+    ConfigModules.TopicConfig ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync,
-    getDeviceTokens: DeviceStoreTypes.GetDeviceTokens): Promise<EndpointTypes.Endpoint> =>
+    getDeviceTokens: DeviceStoreTypes.GetDeviceTokens,
+    publishToQueue: QueueTypes.Publish,
+    topicCfg: ConfigTypes.TopicConfig): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/internal/peers/publish',
       method: EndpointTypes.EndpointMethod.POST,
       handler: [
         wrapAsync(async (req, res, next) => {
-          const type = req.body['type'];
           const memberNos: any[] = req.query['member_nos'];
 
-          if (!memberNos || !type) {
-            throw new InvalidParamError('member_nos or type required');
+          const title = req.body['title'];
+          const titleLocKey = req.body['title_loc_key'];
+          const titleArgsExpr = req.body['title_args'];
+
+          const subTitle = req.body['subtitle'];
+          const subTitleLocKey = req.body['subtitle_loc_key'];
+          const subTitleArgsExpr = req.body['subtitle_args'];
+
+          if (!memberNos) {
+            throw new InvalidParamError('member_nos required');
           }
           if (isArray(memberNos) === false) {
             throw new InvalidParamError('member_nos must be array');
           }
-          if (!(type === 'ROULETTE_MATCHED')) {
-            throw new InvalidParamError('invalid type');
+
+          if (title && titleLocKey) {
+            throw new InvalidParamError('title and title_loc_key cannot be inputed same time');
+          }
+
+          if (subTitle && subTitleLocKey) {
+            throw new InvalidParamError('subtitle and subtitle_loc_key cannot be inputed same time');
+          }
+
+          if ((!title && !titleLocKey) || (!subTitle && !subTitleLocKey)) {
+            throw new InvalidParamError('title and title_loc_key, subtitle, subtitle_loc_key must not null once');
+          }
+
+          let titleArgs: string[] = [];
+          let subTitleArgs: string[] = [];
+
+          try {
+            if (titleArgsExpr) titleArgs = JSON.parse(titleArgsExpr);
+            if (subTitleArgsExpr) subTitleArgs = JSON.parse(subTitleArgsExpr);
+          } catch (err) {
+            throw new InvalidParamError('title_args body_args must be json-array');
           }
 
           const deviceTokens = await getDeviceTokens(memberNos);
-          console.log(deviceTokens);
 
-          res.status(200).json({});
+          const pushMessage = {
+            device_tokens: deviceTokens,
+            title,
+            title_loc_key: titleLocKey,
+            title_args: titleArgs,
+            subtitle: subTitle,
+            subtitle_loc_key: subTitleLocKey,
+            subtitle_args: subTitleArgs,
+            body: {}
+          };
+
+          res.status(200).json(pushMessage);
         })
       ]
     }));
