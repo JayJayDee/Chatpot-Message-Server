@@ -10,6 +10,9 @@ import { ConfigModules, ConfigTypes } from '../configs';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
 import { ReceptionType, MessageType, MessageBodyPayload } from '../common-types';
 import { LoggerModules, LoggerTypes } from '../loggers';
+import { QueueSenderModules } from '../queue-sender/modules';
+import { QueueSenderTypes } from '../queue-sender/types';
+import { ExtApiModules, ExtApiTypes } from '../extapis';
 
 
 injectable(EndpointModules.Internal.EnterRooms,
@@ -265,28 +268,59 @@ injectable(EndpointModules.Internal.GetMessages,
 
 
 injectable(EndpointModules.Internal.PublishPeerMessage,
-  [ EndpointModules.Utils.WrapAync ],
+  [ EndpointModules.Utils.WrapAync,
+    QueueSenderModules.SendQueueForMembers,
+    ExtApiModules.Auth.RequestMembers ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync,
-    getDeviceTokens: DeviceStoreTypes.GetDeviceTokens,
-    publishToQueue: QueueTypes.Publish,
-    topicCfg: ConfigTypes.TopicConfig): Promise<EndpointTypes.Endpoint> =>
+    sendToMembers: QueueSenderTypes.SendQueueForMembers,
+    requestMembers: ExtApiTypes.Auth.RequestMembers): Promise<EndpointTypes.Endpoint> =>
 
     ({
       uri: '/internal/roulette/matched',
       method: EndpointTypes.EndpointMethod.POST,
       handler: [
         wrapAsync(async (req, res, next) => {
-          const memberNos: any[] = req.query['member_nos'];
+          const memberNosExpr: any[] = req.query['member_nos'];
 
-          if (!memberNos) {
+          if (!memberNosExpr) {
             throw new InvalidParamError('member_no required');
           }
-          if (isArray(memberNos) === false) {
+          if (isArray(memberNosExpr) === false) {
             throw new InvalidParamError('member_no must be an array');
           }
-          if (memberNos.length !== 2) {
+          if (memberNosExpr.length !== 2) {
             throw new InvalidParamError('size of member_no must be equal to 2');
           }
+
+          let memberNos: number[] = null;
+          try {
+            memberNos = memberNosExpr.map((m) => parseInt(m));
+          } catch (err) {
+            throw new InvalidParamError('each elements of member_nos must be number');
+          }
+
+          const members = await requestMembers(memberNos);
+          if (members.length !== 2) {
+            throw new InvalidParamError('2 member not found');
+          }
+
+          sendToMembers({
+            member_nos: [ memberNos[0] ],
+            title_loc_key: 'ROULETTE_MATCHED',
+            subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
+            subtitle_args: ['Frozen', '얼어붙은', 'F'],
+            body: {
+            }
+          });
+
+          sendToMembers({
+            member_nos: [ memberNos[1] ],
+            title_loc_key: 'ROULETTE_MATCHED',
+            subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
+            subtitle_args: ['Frozen', '얼어붙은', 'F'],
+            body: {
+            }
+          });
 
           res.status(200).json({});
         })
