@@ -304,20 +304,22 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
             throw new InvalidParamError('2 member not found');
           }
 
+          const nickTwo = members[1].nick;
           sendToMembers({
             member_nos: [ memberNos[0] ],
             title_loc_key: 'ROULETTE_MATCHED',
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
-            subtitle_args: ['Frozen', '얼어붙은', 'F'],
+            subtitle_args: [nickTwo.en, nickTwo.ko, nickTwo.ja],
             body: {
             }
           });
 
+          const nickOne = members[0].nick;
           sendToMembers({
             member_nos: [ memberNos[1] ],
             title_loc_key: 'ROULETTE_MATCHED',
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
-            subtitle_args: ['Frozen', '얼어붙은', 'F'],
+            subtitle_args: [nickOne.en, nickOne.ko, nickOne.ja],
             body: {
             }
           });
