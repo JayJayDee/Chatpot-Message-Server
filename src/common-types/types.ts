@@ -1,4 +1,5 @@
 export type Member = {
+  member_no: number;
   token: string;
   region: string;
   language: string;

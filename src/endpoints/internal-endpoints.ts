@@ -304,22 +304,22 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
             throw new InvalidParamError('2 member not found');
           }
 
-          const nickTwo = members[1].nick;
+          const nickTwo = members.find((m) => m.member_no === memberNos[1]).nick;
           sendToMembers({
             member_nos: [ memberNos[0] ],
             title_loc_key: 'ROULETTE_MATCHED',
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
-            subtitle_args: [nickTwo.en, nickTwo.ko, nickTwo.ja],
+            subtitle_args: [nickCamelCaseEn(nickTwo.en), nickTwo.ko, nickTwo.ja],
             body: {
             }
           });
 
-          const nickOne = members[0].nick;
+          const nickOne = members.find((m) => m.member_no === memberNos[0]).nick;
           sendToMembers({
             member_nos: [ memberNos[1] ],
             title_loc_key: 'ROULETTE_MATCHED',
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
-            subtitle_args: [nickOne.en, nickOne.ko, nickOne.ja],
+            subtitle_args: [nickCamelCaseEn(nickOne.en), nickOne.ko, nickOne.ja],
             body: {
             }
           });
@@ -328,3 +328,8 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
         })
       ]
     }));
+
+const nickCamelCaseEn = (enNick: string) =>
+  enNick.split(' ').map((chunk) =>
+    chunk.charAt(0).toUpperCase() + chunk.slice(1))
+    .join(' ');

@@ -13,7 +13,8 @@ export const toMember = (elem: any): Member => ({
   avatar: toAvatar(elem.avatar),
   region: elem.region,
   language: elem.language,
-  gender: elem.gender
+  gender: elem.gender,
+  member_no: elem.member_no
 });
 
 export const toAvatar = (elem: any): Avatar => ({
