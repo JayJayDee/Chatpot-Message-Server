@@ -32,6 +32,7 @@ injectable(ConfigModules.EmptyConfig, [], async (): Promise<ConfigTypes.RootConf
   topic: {
     deviceQueue: null,
     websocketJoinsQueue: null,
+    peerExchange: null,
     messageExchange: null
   },
   mysql: {
@@ -66,6 +67,7 @@ injectable(ConfigModules.ConfigRules, [],
     { key: 'TOPIC_DEVICE_QUEUE', path: ['topic', 'deviceQueue'] },
     { key: 'TOPIC_WEBSOCKET_JOINS_QUEUE', path: ['topic', 'websocketJoinsQueue'] },
     { key: 'TOPIC_MESSAGE_EXCHANGE', path: ['topic', 'messageExchange'] },
+    { key: 'TOPIC_PEER_EXCHANGE', path: ['topic', 'peerExchange'] },
     { key: 'MYSQL_HOST', path: ['mysql', 'host'] },
     { key: 'MYSQL_PORT', path: ['mysql', 'port'] },
     { key: 'MYSQL_USER', path: ['mysql', 'user'] },

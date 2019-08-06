@@ -11,14 +11,11 @@ export namespace QueueSenderTypes {
 
   interface SendMembersParam extends BaseParam {
     member_nos: number[];
-    topic: string;
-    topic_type: 'EXCHANGE' | 'QUEUE';
   }
   export type SendQueueForMembers = (param: SendMembersParam) => Promise<void>;
 
   interface SendTopicParam extends BaseParam {
     topic: string;
-    topic_type: 'EXCHANGE' | 'QUEUE';
   }
   export type SendQueueForTopic = (param: SendTopicParam) => Promise<void>;
 }

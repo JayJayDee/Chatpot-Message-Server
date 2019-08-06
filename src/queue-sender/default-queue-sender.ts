@@ -3,24 +3,56 @@ import { QueueSenderModules } from './modules';
 import { QueueModules, QueueTypes } from '../queues';
 import { DeviceStoreModules, DeviceStoreTypes } from '../device-stores';
 import { QueueSenderTypes } from './types';
+import { ConfigModules, ConfigTypes } from '../configs';
 
 injectable(QueueSenderModules.SendQueueForMembers,
-  [ QueueModules.Publish,
+  [ ConfigModules.TopicConfig,
+    QueueModules.Publish,
     DeviceStoreModules.GetDeviceTokens ],
-  async (publish: QueueTypes.Publish,
+  async (topicCfg: ConfigTypes.TopicConfig,
+    publish: QueueTypes.Publish,
     getDeviceTokens: DeviceStoreTypes.GetDeviceTokens): Promise<QueueSenderTypes.SendQueueForMembers> =>
 
     async (param) => {
+      const deviceTokens = await getDeviceTokens(param.member_nos);
+
+      const message = {
+        member_nos: param.member_nos,
+        device_tokens: deviceTokens,
+        title: param.title,
+        title_loc_key: param.title_loc_key,
+        title_args: param.title_args,
+        subtitle: param.subtitle,
+        subtitle_loc_key: param.subtitle_loc_key,
+        subtitle_args: param.subtitle_args,
+        body: param.body
+      };
+
+      await publish(topicCfg.peerExchange,
+        Buffer.from(JSON.stringify(message)),
+        QueueTypes.QueueType.EXCHANGE);
     });
 
 
 injectable(QueueSenderModules.SendQueueForTopic,
-  [ QueueModules.Publish ],
-  async (publish: QueueTypes.Publish): Promise<QueueSenderTypes.SendQueueForTopic> =>
+  [ ConfigModules.TopicConfig,
+    QueueModules.Publish ],
+  async (topicCfg: ConfigTypes.TopicConfig,
+    publish: QueueTypes.Publish): Promise<QueueSenderTypes.SendQueueForTopic> =>
 
     async (param) => {
-      let topicType: QueueTypes.QueueType;
-      if (param.topic_type === 'EXCHANGE') topicType = QueueTypes.QueueType.EXCHANGE;
-      else topicType = QueueTypes.QueueType.QUEUE;
-      await publish(param.topic, Buffer.from(JSON.stringify(param)), topicType);
+      const message = {
+        topic: param.topic,
+        title: param.title,
+        title_loc_key: param.title_loc_key,
+        title_args: param.title_args,
+        subtitle: param.subtitle,
+        subtitle_loc_key: param.subtitle_loc_key,
+        subtitle_args: param.subtitle_args,
+        body: param.body
+      };
+
+      await publish(topicCfg.messageExchange,
+        Buffer.from(JSON.stringify(message)),
+        QueueTypes.QueueType.EXCHANGE);
     });
