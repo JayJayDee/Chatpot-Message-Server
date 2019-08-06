@@ -289,6 +289,20 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
           const subTitleLocKey = req.body['subtitle_loc_key'];
           const subTitleArgsExpr = req.body['subtitle_args'];
 
+          const bodyExpr = req.body['body'];
+
+          let body: JSON = null;
+
+          if (!bodyExpr) {
+            throw new InvalidParamError('body required');
+          }
+
+          try {
+            body = JSON.parse(bodyExpr);
+          } catch (err) {
+            throw new InvalidParamError('body must be JSON');
+          }
+
           if (!memberNos) {
             throw new InvalidParamError('member_nos required');
           }
@@ -321,6 +335,7 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
           const deviceTokens = await getDeviceTokens(memberNos);
 
           const pushMessage = {
+            member_nos: memberNos,
             device_tokens: deviceTokens,
             title,
             title_loc_key: titleLocKey,
@@ -328,7 +343,7 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
             subtitle: subTitle,
             subtitle_loc_key: subTitleLocKey,
             subtitle_args: subTitleArgs,
-            body: {}
+            body
           };
 
           res.status(200).json(pushMessage);
