@@ -281,6 +281,11 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
       handler: [
         wrapAsync(async (req, res, next) => {
           const memberNosExpr: any[] = req.query['member_nos'];
+          const roomToken: string = req.body['room_token'];
+
+          if (!roomToken) {
+            throw new InvalidParamError('room_token required');
+          }
 
           if (!memberNosExpr) {
             throw new InvalidParamError('member_no required');
@@ -321,6 +326,7 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
             subtitle_args: [nickCamelCaseEn(nickOne.en), nickOne.ko, nickOne.ja],
             body: {
+              room_token: roomToken
             }
           });
 
