@@ -223,7 +223,7 @@ injectable(EndpointModules.Internal.PublishNotification,
         topic: roomToken,
         title_loc_key: action,
         subtitle_loc_key: `${action}_BODY`,
-        subtitle_args: [roomTitle, member.nick.en, member.nick.ko, member.nick.ja],
+        subtitle_args: [roomTitle, nickCamelCaseEn(member.nick.en), member.nick.ko, member.nick.ja],
         body
       };
 
