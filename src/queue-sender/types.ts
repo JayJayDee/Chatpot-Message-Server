@@ -5,7 +5,7 @@ export namespace QueueSenderTypes {
     title_args?: any[];
     subtitle?: string;
     subtitle_loc_key?: string;
-    subtitle_args: any[];
+    subtitle_args?: any[];
     body: {[key: string]: any};
   };
 

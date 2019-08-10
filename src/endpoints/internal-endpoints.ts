@@ -166,15 +166,13 @@ injectable(EndpointModules.Internal.PublishNotification,
   [ EndpointModules.Utils.WrapAync,
     UtilModules.Message.CreateMessageId,
     MessageStoreModules.StoreMessage,
-    QueueModules.Publish,
-    ConfigModules.TopicConfig,
-    LoggerModules.Logger ],
+    LoggerModules.Logger,
+    QueueSenderModules.SendQueueForTopic ],
   async (wrapAsync: EndpointTypes.Utils.WrapAsync,
     createMessageId: UtilTypes.Message.CreateMessageId,
     storeMessage: MessageStoreTypes.StoreMessage,
-    publishToQueue: QueueTypes.Publish,
-    topicCfg: ConfigTypes.TopicConfig,
-    log: LoggerTypes.Logger): Promise<EndpointTypes.Endpoint> =>
+    log: LoggerTypes.Logger,
+    sendQueueForTopic: QueueSenderTypes.SendQueueForTopic): Promise<EndpointTypes.Endpoint> =>
 
 ({
   uri: '/internal/room/:room_token/notification',
@@ -182,21 +180,27 @@ injectable(EndpointModules.Internal.PublishNotification,
   handler: [
     wrapAsync(async (req, res, next) => {
       const roomToken = req.params['room_token'];
-      const title = req.body['title'];
-      const titleKey = req.body['title_key'];
-      const subtitle = req.body['subtitle'];
-      const subtitleKey = req.body['subtitle_key'];
+      const roomTitle = req.body['room_title'];
+      const action: 'ROOM_LEAVE' | 'ROOM_JOIN' = req.body['action'];
       let content = req.body['content'];
+      let member = req.body['member'];
 
-      if (!subtitle && !subtitleKey) throw new InvalidParamError('subtitle or subtitle_key required');
-      if (!title && !titleKey) throw new InvalidParamError('title or title_key required');
+      if (!action) throw new InvalidParamError('action required');
       if (!roomToken) throw new InvalidParamError('room_token required');
+      if (!roomTitle) throw new InvalidParamError('room_title required');
       if (!content) throw new InvalidParamError('content required');
+      if (!member) throw new InvalidParamError('member_expression required');
 
       try {
         content = JSON.parse(content);
       } catch (err) {
         throw new InvalidParamError('content must be json');
+      }
+
+      try {
+        member = JSON.parse(member);
+      } catch (err) {
+        throw new InvalidParamError('member must be json');
       }
 
       const messageId = createMessageId(roomToken);
@@ -213,24 +217,26 @@ injectable(EndpointModules.Internal.PublishNotification,
         sent_time: Date.now(),
         message_id: messageId
       };
-      const pushMessage = {
-        title: title ? title : null,
-        subtitle: subtitle ? subtitle : null,
-        title_key: titleKey ? titleKey : null,
-        subtitle_key: subtitleKey ? subtitleKey : null,
-        body,
-        topic: roomToken
+
+      // const pushMessage = {
+      //   title: title ? title : null,
+      //   subtitle: subtitle ? subtitle : null,
+      //   title_key: titleKey ? titleKey : null,
+      //   subtitle_key: subtitleKey ? subtitleKey : null,
+      //   body,
+      //   topic: roomToken
+      // };
+
+      const pushPayload = {
+        topic: roomToken,
+        title_loc_key: action,
+        title_args: [member.nick.en, member.nick.ko, member.nick.ja],
+        subtitle: roomTitle,
+        body
       };
 
-      log.debug('[internal-endpoint] rabbitmq payload');
-      log.debug(pushMessage);
-
-      // non-awaiting async functions. -> for the performance.
+      sendQueueForTopic(pushPayload);
       storeMessage(roomToken, body);
-      publishToQueue(topicCfg.messageExchange,
-        Buffer.from(JSON.stringify(pushMessage)),
-        QueueTypes.QueueType.EXCHANGE);
-      //////
 
       res.status(200).json({
         message_id: messageId
