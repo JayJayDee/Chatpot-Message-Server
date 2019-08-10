@@ -219,20 +219,11 @@ injectable(EndpointModules.Internal.PublishNotification,
         message_id: messageId
       };
 
-      // const pushMessage = {
-      //   title: title ? title : null,
-      //   subtitle: subtitle ? subtitle : null,
-      //   title_key: titleKey ? titleKey : null,
-      //   subtitle_key: subtitleKey ? subtitleKey : null,
-      //   body,
-      //   topic: roomToken
-      // };
-
       const pushPayload = {
         topic: roomToken,
         title_loc_key: action,
-        title_args: [member.nick.en, member.nick.ko, member.nick.ja],
-        subtitle: roomTitle,
+        subtitle_loc_key: `${action}_BODY`,
+        subtitle_args: [roomTitle, member.nick.en, member.nick.ko, member.nick.ja],
         body
       };
 
