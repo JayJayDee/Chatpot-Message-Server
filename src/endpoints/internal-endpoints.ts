@@ -14,6 +14,7 @@ import { QueueSenderModules } from '../queue-sender/modules';
 import { QueueSenderTypes } from '../queue-sender/types';
 import { ExtApiModules, ExtApiTypes } from '../extapis';
 
+const tag = '[notification-composer]';
 
 injectable(EndpointModules.Internal.EnterRooms,
   [ EndpointModules.Utils.WrapAync ],
@@ -234,6 +235,9 @@ injectable(EndpointModules.Internal.PublishNotification,
         subtitle: roomTitle,
         body
       };
+
+      log.debug(`${tag} room-action payload`);
+      console.dir(pushPayload, { depth: null });
 
       sendQueueForTopic(pushPayload);
       storeMessage(roomToken, body);
