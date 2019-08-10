@@ -22,8 +22,6 @@ class RoomNotFoundError extends BaseLogicError {
   }
 }
 
-const tag = '[publish-endpoint]';
-
 const nickCamelCaseEn = (enNick: string) =>
   enNick.split(' ').map((chunk) =>
     chunk.charAt(0).toUpperCase() + chunk.slice(1))
@@ -60,8 +58,6 @@ injectable(EndpointModules.Message.Publish,
           const platform = req.body['platform'];
           let content = req.body['content'];
 
-          log.debug(`${tag} platform value was: ${platform}`);
-
           if (!type || !memberToken || !roomToken || !content) {
             throw new InvalidParamError('type, member_token, room_token, content required');
           }
@@ -87,7 +83,8 @@ injectable(EndpointModules.Message.Publish,
           const rooms = await reqRooms([ room.room_no ]);
           if (rooms.length === 0) throw new RoomNotFoundError(`room not found: ${roomToken}`);
 
-          const body = {
+          const body: MessageBodyPayload = {
+            push_type: 'MESSAGE',
             message_id: messageId(roomToken, memberToken),
             type: msgType,
             from: members[0],

@@ -211,12 +211,14 @@ injectable(EndpointModules.Internal.PublishNotification,
         token: roomToken
       };
       const body: MessageBodyPayload = {
+        push_type: 'MESSAGE',
         to,
         content,
         from: null,
         type: MessageType.NOTIFICATION,
         sent_time: Date.now(),
-        message_id: messageId
+        message_id: messageId,
+        platform: 'IOS'
       };
 
       const pushPayload = {
@@ -317,6 +319,9 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
             subtitle_args: [nickCamelCaseEn(nickTwo.en), nickTwo.ko, nickTwo.ja],
             body: {
+              push_type: 'NOTIFICATION',
+              type: 'ROULETTE_MATCHED',
+              room_token: roomToken
             }
           });
 
@@ -327,6 +332,8 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
             subtitle_loc_key: 'ROULETTE_MATCHED_BODY',
             subtitle_args: [nickCamelCaseEn(nickOne.en), nickOne.ko, nickOne.ja],
             body: {
+              push_type: 'NOTIFICATION',
+              type: 'ROULETTE_MATCHED',
               room_token: roomToken
             }
           });

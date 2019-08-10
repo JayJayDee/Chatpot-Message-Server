@@ -39,11 +39,13 @@ export enum MessageType {
 }
 
 export type MessageBodyPayload = {
+  push_type: 'MESSAGE' | 'NOTIFICATION'
   message_id: string;
   type: MessageType;
   from?: Member;
   to: Reception;
   content: any;
+  platform: 'IOS' | 'ANDROID';
   sent_time: number;
 };
 
