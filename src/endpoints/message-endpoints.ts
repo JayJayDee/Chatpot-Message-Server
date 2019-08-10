@@ -6,9 +6,9 @@ import { InvalidParamError, BaseLogicError } from '../errors';
 import { ExtApiModules, ExtApiTypes } from '../extapis';
 import { toMessageType, ReceptionType, MessageBodyPayload, MessageType } from '../common-types';
 import { MessageStoreModules, MessageStoreTypes } from '../message-stores';
-import { QueueTypes, QueueModules } from '../queues';
-import { ConfigModules, ConfigTypes } from '../configs';
 import { LoggerModules, LoggerTypes } from '../loggers';
+import { QueueSenderModules } from '../queue-sender/modules';
+import { QueueSenderTypes } from '../queue-sender/types';
 
 class MemberNotFoundError extends BaseLogicError {
   constructor(payload: any) {
@@ -24,6 +24,11 @@ class RoomNotFoundError extends BaseLogicError {
 
 const tag = '[publish-endpoint]';
 
+const nickCamelCaseEn = (enNick: string) =>
+  enNick.split(' ').map((chunk) =>
+    chunk.charAt(0).toUpperCase() + chunk.slice(1))
+    .join(' ');
+
 injectable(EndpointModules.Message.Publish,
   [ LoggerModules.Logger,
     UtilModules.Auth.DecryptRoomToken,
@@ -32,8 +37,7 @@ injectable(EndpointModules.Message.Publish,
     ExtApiModules.Auth.RequestMembers,
     ExtApiModules.Room.RequestRooms,
     MessageStoreModules.StoreMessage,
-    QueueModules.Publish,
-    ConfigModules.TopicConfig,
+    QueueSenderModules.SendQueueForTopic,
     UtilModules.Message.CreateMessageId ],
   async (log: LoggerTypes.Logger,
     decRoomToken: UtilTypes.Auth.DecryptRoomToken,
@@ -42,8 +46,7 @@ injectable(EndpointModules.Message.Publish,
     reqMembers: ExtApiTypes.Auth.RequestMembers,
     reqRooms: ExtApiTypes.Room.RequestRooms,
     storeMessage: MessageStoreTypes.StoreMessage,
-    publishToQueue: QueueTypes.Publish,
-    topicCfg: ConfigTypes.TopicConfig,
+    sendQueueForTopic: QueueSenderTypes.SendQueueForTopic,
     messageId: UtilTypes.Message.CreateMessageId): Promise<EndpointTypes.Endpoint> =>
 
     ({
@@ -99,19 +102,22 @@ injectable(EndpointModules.Message.Publish,
 
           const pushMessage = {
             topic: roomToken,
-            // title: `Messages from ${rooms[0].title}`,
-            title_key: 'MESSAGE_ARRIVAL',
-            subtitle: getSubtitle(body),
-            // subtitle_key: ' ',
+            title_loc_key: 'MESSAGE_ARRIVAL',
+            title_args: [
+              nickCamelCaseEn(members[0].nick.en),
+              members[0].nick.ko,
+              members[0].nick.ja
+            ],
+            subtitle_loc_key: 'MESSAGE_ARRIVAL_BODY',
+            subtitle_args: [
+              rooms[0].title,
+              getSubtitle(body)
+            ],
             body
           };
 
           await storeMessage(roomToken, body);
-
-          // non-awaiting async function -> for the performance.
-          publishToQueue(topicCfg.messageExchange,
-            Buffer.from(JSON.stringify(pushMessage)),
-            QueueTypes.QueueType.EXCHANGE);
+          sendQueueForTopic(pushMessage); // non-awaiting async function -> for the performance.
 
           res.status(200).json({
             message_id: body.message_id
@@ -162,9 +168,6 @@ injectable(EndpointModules.Message.Messages,
 
 const getSubtitle = (body: MessageBodyPayload): string => {
   if (body.type === MessageType.TEXT) return body.content as string;
-  else if (body.type === MessageType.IMAGE) return 'Picture';
-  else if (body.type === MessageType.NOTIFICATION) {
-    return 'notifictaion';
-  }
-  return 'alarm';
+  else if (body.type === MessageType.IMAGE) return '(Picture)';
+  return '';
 };
