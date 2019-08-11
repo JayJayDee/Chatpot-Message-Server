@@ -270,7 +270,7 @@ injectable(EndpointModules.Internal.GetMessages,
   }));
 
 
-injectable(EndpointModules.Internal.PublishPeerMessage,
+injectable(EndpointModules.Internal.RouletteMatched,
   [ EndpointModules.Utils.WrapAync,
     QueueSenderModules.SendQueueForMembers,
     ExtApiModules.Auth.RequestMembers ],
@@ -342,6 +342,81 @@ injectable(EndpointModules.Internal.PublishPeerMessage,
         })
       ]
     }));
+
+
+injectable(EndpointModules.Internal.RouletteDestroyed,
+  [ EndpointModules.Utils.WrapAync,
+    QueueSenderModules.SendQueueForMembers,
+    ExtApiModules.Auth.RequestMembers ],
+  async (wrapAsync: EndpointTypes.Utils.WrapAsync,
+    sendToMembers: QueueSenderTypes.SendQueueForMembers,
+    requestMembers: ExtApiTypes.Auth.RequestMembers) =>
+
+    ({
+      uri: '/internal/roulette/destroyed',
+      method: EndpointTypes.EndpointMethod.POST,
+      handler: [
+        wrapAsync(async (req, res, next) => {
+          const memberNosExpr: any[] = req.query['member_nos'];
+          const roomToken: string = req.body['room_token'];
+
+          if (!roomToken) {
+            throw new InvalidParamError('room_token required');
+          }
+
+          if (!memberNosExpr) {
+            throw new InvalidParamError('member_no required');
+          }
+          if (isArray(memberNosExpr) === false) {
+            throw new InvalidParamError('member_no must be an array');
+          }
+          if (memberNosExpr.length !== 2) {
+            throw new InvalidParamError('size of member_no must be equal to 2');
+          }
+
+          let memberNos: number[] = null;
+          try {
+            memberNos = memberNosExpr.map((m) => parseInt(m));
+          } catch (err) {
+            throw new InvalidParamError('each elements of member_nos must be number');
+          }
+
+          const members = await requestMembers(memberNos);
+          if (members.length !== 2) {
+            throw new InvalidParamError('2 member not found');
+          }
+
+          const nickTwo = members.find((m) => m.member_no === memberNos[1]).nick;
+          sendToMembers({
+            member_nos: [ memberNos[0] ],
+            title_loc_key: 'ROULETTE_DESTROYED',
+            subtitle_loc_key: 'ROULETTE_DESTROYED_BODY',
+            subtitle_args: [nickCamelCaseEn(nickTwo.en), nickTwo.ko, nickTwo.ja],
+            body: {
+              push_type: 'NOTIFICATION',
+              type: 'ROULETTE_DESTROYED',
+              room_token: roomToken
+            }
+          });
+
+          const nickOne = members.find((m) => m.member_no === memberNos[0]).nick;
+          sendToMembers({
+            member_nos: [ memberNos[1] ],
+            title_loc_key: 'ROULETTE_DESTROYED',
+            subtitle_loc_key: 'ROULETTE_DESTROYED_BODY',
+            subtitle_args: [nickCamelCaseEn(nickOne.en), nickOne.ko, nickOne.ja],
+            body: {
+              push_type: 'NOTIFICATION',
+              type: 'ROULETTE_DESTROYED',
+              room_token: roomToken
+            }
+          });
+
+          res.status(200).json({});
+        })
+      ]
+    }));
+
 
 const nickCamelCaseEn = (enNick: string) =>
   enNick.split(' ').map((chunk) =>

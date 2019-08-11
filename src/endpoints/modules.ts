@@ -23,6 +23,7 @@ export namespace EndpointModules {
     LastMessages = 'Endpoint/Internal/LastMessages',
     PublishNotification = 'Endpoint/Internal/PublishNotification',
     GetMessages = 'Endpoint/Internal/GetMessages',
-    PublishPeerMessage = 'Endpoint/Internal/PublishPeerMessage'
+    RouletteMatched = 'Endpoint/Internal/RouletteMatched',
+    RouletteDestroyed = 'Endpoint/Internal/RouletteDestroyed'
   }
 }
